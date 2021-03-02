@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="Reminance">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Reminance">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sentinel 简单使用">
+<meta property="og:url" content="https://reminance.github.io/2020/12/23/20201223-01/index.html">
+<meta property="og:site_name" content="Reminance">
+<meta property="og:description" content="略">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-12-23T06:20:35.000Z">
+<meta property="article:modified_time" content="2021-03-02T07:40:33.551Z">
+<meta property="article:author" content="Reminance">
+<meta property="article:tag" content="sentinel">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    
+    <title>sentinel 简单使用 · Reminance&#39;s Studio</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Reminance&#39;s Studio.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">sentinel 简单使用</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Reminance's Studio.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            sentinel 简单使用
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "sentinel">sentinel</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">3k</span>阅读时长: <span class="post-count reading-time">12 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2020/12/23</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>@<a href="../20201223-01">TOC</a></p>
+<h2 id="sentinel-简单使用"><a href="#sentinel-简单使用" class="headerlink" title="sentinel 简单使用"></a>sentinel 简单使用</h2><h3 id="Sentinel-介绍"><a href="#Sentinel-介绍" class="headerlink" title="Sentinel 介绍"></a>Sentinel 介绍</h3><p>随着微服务的流行，服务和服务之间的稳定性变得越来越重要。 Sentinel 以流量为切入点，从流量控制、熔断降级、系统负载保护等多个维度保护服务的稳定性。</p>
+<p>Sentinel 具有以下特征:</p>
+<ul>
+<li>丰富的应用场景： Sentinel 承接了阿里巴巴近 10 年的双十一大促流量的核心场景，例如秒杀（即突发流量控制在系统容量可以承受的范围）、消息削峰填谷、实时熔断下游不可用应用等。</li>
+<li>完备的实时监控： Sentinel 同时提供实时的监控功能。您可以在控制台中看到接入应用的单台机器秒级数据，甚至 500 台以下规模的集群的汇总运行情况。</li>
+<li>广泛的开源生态： Sentinel 提供开箱即用的与其它开源框架/库的整合模块，例如与 Spring Cloud、Dubbo、gRPC 的整合。您只需要引入相应的依赖并进行简单的配置即可快速地接入 Sentinel。</li>
+<li>完善的 SPI 扩展点： Sentinel 提供简单易用、完善的 SPI 扩展点。您可以通过实现扩展点，快速的定制逻辑。例如定制规则管理、适配数据源等。</li>
+</ul>
+<h3 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h3><p> <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E4%BB%8B%E7%BB%8D">中文文档</a><br> <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E6%8E%A7%E5%88%B6%E5%8F%B0">dashboard控制台</a><br> <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6%E7%9A%84%E9%80%82%E9%85%8D#spring-cloud">主流框架的适配#spring-cloud</a><br> <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel">在生产环境中使用-Sentinel</a><br> <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E6%97%A5%E5%BF%97">拦截/秒级监控/业务/集群限流日志</a> </p>
+<h3 id="如何使用-Sentinel-springboot"><a href="#如何使用-Sentinel-springboot" class="headerlink" title="如何使用 Sentinel(springboot)"></a>如何使用 Sentinel(springboot)</h3><h4 id="dashboard-安装"><a href="#dashboard-安装" class="headerlink" title="dashboard 安装"></a>dashboard 安装</h4><h5 id="获取-Sentinel-控制台"><a href="#获取-Sentinel-控制台" class="headerlink" title="获取 Sentinel 控制台"></a>获取 Sentinel 控制台</h5><p>您可以从 <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/releases">release</a> 页面 下载最新版本的控制台 jar 包。</p>
+<p>您也可以从最新版本的源码自行构建 Sentinel 控制台：</p>
+<ul>
+<li>下载 <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/tree/master/sentinel-dashboard">控制台</a> 工程</li>
+<li>使用以下命令将代码打包成一个 fat jar: <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="dashboard-启动"><a href="#dashboard-启动" class="headerlink" title="dashboard 启动"></a>dashboard 启动</h4><blockquote>
+<p>注意：启动 Sentinel 控制台需要 JDK 版本为 1.8 及以上版本。</p>
+</blockquote>
+<p>Sentinel 控制台是一个标准的 Spring Boot 应用，以 Spring Boot 的方式运行 jar 包即可。<br>使用如下命令启动控制台：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java -Dserver.port=8080 \</span><br><span class="line">-Dcsp.sentinel.dashboard.server=localhost:8080 \</span><br><span class="line">-Dproject.name=sentinel-dashboard \</span><br><span class="line">-jar target/sentinel-dashboard.jar</span><br></pre></td></tr></table></figure>
+
+<p>上述命令中我们指定几个 JVM 参数，其中 <code>-Dserver.port=8080</code> 是 Spring Boot 的参数，<br>用于指定 Spring Boot 服务端启动端口为 <code>8080</code>。其余几个是 Sentinel 客户端的参数。</p>
+<p>为便于演示，我们对控制台本身加入了流量控制功能，具体做法是引入 Sentinel 提供的 <code>CommonFilter</code> 这个 Servlet Filter。<br>上述 JVM 参数的含义是：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-Dcsp.sentinel.dashboard.server=localhost:8080</code></td>
+<td>向 Sentinel 接入端指定控制台的地址</td>
+</tr>
+<tr>
+<td><code>-Dproject.name=sentinel-dashboard</code></td>
+<td>向 Sentinel 指定应用名称，比如上面对应的应用名称就为 <code>sentinel-dashboard</code></td>
+</tr>
+</tbody></table>
+<p>全部的配置项可以参考 <a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E5%90%AF%E5%8A%A8%E9%85%8D%E7%BD%AE%E9%A1%B9">启动配置项文档</a>。</p>
+<p>经过上述配置，控制台启动后会自动向自己发送心跳。程序启动后浏览器访问 <code>localhost:8080</code> 即可访问 Sentinel 控制台。</p>
+<p>从 Sentinel 1.6.0 开始，Sentinel 控制台支持简单的<strong>登录</strong>功能，默认用户名和密码都是 <code>sentinel</code>。用户可以通过如下参数进行配置：</p>
+<ul>
+<li><code>-Dsentinel.dashboard.auth.username=sentinel</code> 用于指定控制台的登录用户名为 <code>sentinel</code>；</li>
+<li><code>-Dsentinel.dashboard.auth.password=123456</code> 用于指定控制台的登录密码为 <code>123456</code>；如果省略这两个参数，默认用户和密码均为 <code>sentinel</code>；</li>
+<li><code>-Dserver.servlet.session.timeout=7200</code> 用于指定 Spring Boot 服务端 session 的过期时间，如 <code>7200</code> 表示 7200 秒；<code>60m</code> 表示 60 分钟，默认为 30 分钟；</li>
+</ul>
+<blockquote>
+<p>注：若您的应用为 Spring Boot 或 Spring Cloud 应用，您可以通过 Spring 配置文件来指定配置，详情请参考 <a target="_blank" rel="noopener" href="https://github.com/spring-cloud-incubator/spring-cloud-alibaba/wiki/Sentinel">Spring Cloud Alibaba Sentinel</a> 文档。</p>
+</blockquote>
+<h4 id="springboot应用接入"><a href="#springboot应用接入" class="headerlink" title="springboot应用接入"></a>springboot应用接入</h4><h6 id="1-pom-xml"><a href="#1-pom-xml" class="headerlink" title="1. pom.xml"></a>1. pom.xml</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      &lt;dependency&gt;</span><br><span class="line">          &lt;groupId&gt;com.alibaba.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">          &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;&#x2F;artifactId&gt;</span><br><span class="line">          &lt;version&gt;2.2.3.RELEASE&lt;&#x2F;version&gt;</span><br><span class="line">      &lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;!-- 使用zk作为规则持久化 --&gt;</span><br><span class="line">      &lt;dependency&gt;</span><br><span class="line">          &lt;groupId&gt;com.alibaba.csp&lt;&#x2F;groupId&gt;</span><br><span class="line">          &lt;artifactId&gt;sentinel-datasource-zookeeper&lt;&#x2F;artifactId&gt;</span><br><span class="line">          &lt;version&gt;1.8.0&lt;&#x2F;version&gt;</span><br><span class="line">      &lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h6 id="2-配置控制台信息"><a href="#2-配置控制台信息" class="headerlink" title="2. 配置控制台信息"></a>2. 配置控制台信息</h6><blockquote>
+<p>这里的<code>spring.cloud.sentinel.transport.port</code> 端口配置会在应用对应的机器上启动一个 Http Server，该 Server 会与 Sentinel 控制台做交互。比如 Sentinel 控制台添加了一个限流规则，会把规则数据 push 给这个 Http Server 接收，Http Server 再将规则注册到 Sentinel 中。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">application.yml</span><br><span class="line">spring:</span><br><span class="line">  cloud:</span><br><span class="line">    sentinel:</span><br><span class="line">      transport:</span><br><span class="line">        port: 8719</span><br><span class="line">        dashboard: localhost:8080</span><br></pre></td></tr></table></figure>
+
+<h6 id="3-配置sentinel-resource"><a href="#3-配置sentinel-resource" class="headerlink" title="3. 配置sentinel resource"></a>3. 配置sentinel resource</h6><p><code>@SentinelResource 注解</code></p>
+<blockquote>
+<p>注意：注解方式埋点不支持 private 方法。</p>
+</blockquote>
+<p><code>@SentinelResource</code> 用于定义资源，并提供可选的异常处理和 fallback 配置项。 <code>@SentinelResource</code> 注解包含以下属性：</p>
+<ul>
+<li><code>value</code>：资源名称，必需项（不能为空）</li>
+<li><code>entryType</code>：entry 类型，可选项（默认为 <code>EntryType.OUT</code>）</li>
+<li><code>blockHandler</code> / <code>blockHandlerClass</code>: <code>blockHandler</code> 对应处理 <code>BlockException</code> 的函数名称，可选项。blockHandler 函数访问范围需要是 <code>public</code>，返回类型需要与原方法相匹配，参数类型需要和原方法相匹配并且最后加一个额外的参数，类型为 <code>BlockException</code>。blockHandler 函数默认需要和原方法在同一个类中。若希望使用其他类的函数，则可以指定 <code>blockHandlerClass</code> 为对应的类的 <code>Class</code> 对象，注意对应的函数必需为 static 函数，否则无法解析。</li>
+<li><code>fallback</code> / <code>fallbackClass</code>：fallback 函数名称，可选项，用于在抛出异常的时候提供 fallback 处理逻辑。fallback 函数可以针对所有类型的异常（除了 <code>exceptionsToIgnore</code> 里面排除掉的异常类型）进行处理。fallback 函数签名和位置要求：<ul>
+<li>返回值类型必须与原函数返回值类型一致；</li>
+<li>方法参数列表需要和原函数一致，或者可以额外多一个 <code>Throwable</code> 类型的参数用于接收对应的异常。</li>
+<li>fallback 函数默认需要和原方法在同一个类中。若希望使用其他类的函数，则可以指定 <code>fallbackClass</code> 为对应的类的 <code>Class</code> 对象，注意对应的函数必需为 static 函数，否则无法解析。</li>
+</ul>
+</li>
+<li><code>defaultFallback</code>（since 1.6.0）：默认的 <code>fallback</code> 函数名称，可选项，通常用于通用的 <code>fallback</code> 逻辑（即可以用于很多服务或方法）。默认 <code>fallback</code> 函数可以针对所有类型的异常（除了 <code>exceptionsToIgnore</code> 里面排除掉的异常类型）进行处理。若同时配置了 fallback 和 defaultFallback，则只有 fallback 会生效。defaultFallback 函数签名要求：<ul>
+<li>返回值类型必须与原函数返回值类型一致；</li>
+<li>方法参数列表需要为空，或者可以额外多一个 Throwable 类型的参数用于接收对应的异常。</li>
+<li><code>defaultFallback</code> 函数默认需要和原方法在同一个类中。若希望使用其他类的函数，则可以指定 fallbackClass 为对应的类的 Class 对象，注意对应的函数必需为 static 函数，否则无法解析。</li>
+</ul>
+</li>
+<li><code>exceptionsToIgnore</code>（since 1.6.0）：用于指定哪些异常被排除掉，不会计入异常统计中，也不会进入 fallback 逻辑中，而是会原样抛出。</li>
+</ul>
+<p>1.8.0 版本开始，<code>defaultFallback</code> 支持在类级别进行配置。</p>
+<blockquote>
+<p>注：1.6.0 之前的版本 fallback 函数只针对降级异常（DegradeException）进行处理，不能针对业务异常进行处理。</p>
+</blockquote>
+<p>特别地，若 blockHandler 和 fallback 都进行了配置，则被限流降级而抛出 BlockException 时只会进入 blockHandler 处理逻辑。若未配置 blockHandler、fallback 和 defaultFallback，则被限流降级时会将 BlockException 直接抛出（若方法本身未定义 throws BlockException 则会被 JVM 包装一层 UndeclaredThrowableException）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">    @GetMapping(&quot;&#x2F;version&quot;)</span><br><span class="line">    @ApiOperation(value &#x3D; &quot;version&quot;)</span><br><span class="line">&#x2F;&#x2F;    @SentinelResource(value &#x3D; &quot;version&quot;, blockHandler &#x3D; &quot;handleException&quot;, blockHandlerClass &#x3D; &#123;ExceptionUtil.class&#125;)</span><br><span class="line">    @SentinelResource(value &#x3D; &quot;version&quot;, blockHandler &#x3D; &quot;versionBlock&quot;, fallback &#x3D; &quot;versionFallback&quot;)</span><br><span class="line">    public Integer version() &#123;</span><br><span class="line">&#x2F;&#x2F;        if (new Random().nextInt() % 2 &#x3D;&#x3D; 0) &#123;</span><br><span class="line">&#x2F;&#x2F;            log.error(&quot;随机异常&quot;);</span><br><span class="line">&#x2F;&#x2F;            throw new ProcessException(&quot;随机异常&quot;);</span><br><span class="line">&#x2F;&#x2F;        &#125;</span><br><span class="line">        return 11;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Fallback 函数，函数签名与原函数一致或加一个 Throwable 类型的参数.</span><br><span class="line">    public Integer versionFallback() &#123;</span><br><span class="line">        System.out.println(&quot;versionFallback&quot;);</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Block 异常处理函数，参数最后多一个 BlockException，其余与原函数一致.</span><br><span class="line">    public Integer versionBlock(BlockException ex) &#123;</span><br><span class="line">        &#x2F;&#x2F; Do some log here.</span><br><span class="line">        ex.printStackTrace();</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-DataSource-扩展"><a href="#4-DataSource-扩展" class="headerlink" title="4. DataSource 扩展"></a>4. DataSource 扩展</h5><p>推荐<strong>通过控制台设置规则后将规则推送到统一的规则中心，客户端实现 <code>ReadableDataSource</code> 接口端监听规则中心实时获取变更</strong></p>
+<p><code>DataSource</code> 扩展常见的实现方式有:</p>
+<ul>
+<li><strong>拉模式</strong>：客户端主动向某个规则管理中心定期轮询拉取规则，这个规则中心可以是 RDBMS、文件，甚至是 VCS 等。这样做的方式是简单，缺点是无法及时获取变更；</li>
+<li><strong>推模式</strong>：规则中心统一推送，客户端通过注册监听器的方式时刻监听变化，比如使用 Nacos、Zookeeper 等配置中心。这种方式有更好的实时性和一致性保证。<br>Sentinel 目前支持以下数据源扩展：</li>
+</ul>
+<p>Pull-based: 动态文件数据源、Consul, Eureka<br>Push-based: ZooKeeper, Redis, Nacos, Apollo, etcd</p>
+<p><code>注册数据源</code><br>借助 Sentinel 的 <code>InitFunc</code> SPI 扩展接口。只需要实现自己的 <code>InitFunc</code> 接口，在 <code>init</code> 方法中编写注册数据源的逻辑。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">package com.queen.shop.order.controller.api;</span><br><span class="line"></span><br><span class="line">import com.alibaba.csp.sentinel.datasource.ReadableDataSource;</span><br><span class="line">import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;</span><br><span class="line">import com.alibaba.csp.sentinel.init.InitFunc;</span><br><span class="line">import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;</span><br><span class="line">import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;</span><br><span class="line">import com.queen.shop.common.util.JsonUtil;</span><br><span class="line"></span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">public class DataSourceInitFunc implements InitFunc &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void init() throws Exception &#123;</span><br><span class="line">        &#x2F;&#x2F; 引入groupId和dataId的概念，是为了方便和Nacos进行切换</span><br><span class="line">        &#x2F;&#x2F; 规则会持久化到zk的&#x2F;groupId&#x2F;flowDataId节点</span><br><span class="line">        &#x2F;&#x2F; groupId和和flowDataId可以用&#x2F;开头也可以不用</span><br><span class="line">        &#x2F;&#x2F; 建议不用以&#x2F;开头，目的是为了如果从Zookeeper切换到Nacos的话，只需要改数据源类名就可以</span><br><span class="line">        final String groupId &#x3D; &quot;sentinel_rules&#x2F;shop-api&quot;;</span><br><span class="line">        final String dataId &#x3D; &quot;rest-api-flow&quot;;</span><br><span class="line">        final String remoteAddress &#x3D; &quot;127.0.0.1:2181&quot;;</span><br><span class="line"></span><br><span class="line">        ReadableDataSource&lt;String, List&lt;FlowRule&gt;&gt; flowRuleDataSource &#x3D; new ZookeeperDataSource&lt;&gt;(remoteAddress, groupId, dataId,</span><br><span class="line">                source -&gt; JsonUtil.toObject(source, List.class, FlowRule.class));</span><br><span class="line">        FlowRuleManager.register2Property(flowRuleDataSource.getProperty());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着将对应的类名添加到位于资源目录（通常是 <code>resource</code> 目录）下的 <code>META-INF/services</code> 目录下的 <code>com.alibaba.csp.sentinel.init.InitFunc</code> 文件中，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.queen.shop.order.controller.api.DataSourceInitFunc</span><br></pre></td></tr></table></figure>
+
+<p>这样，当初次访问任意资源的时候，Sentinel 就可以自动去注册对应的数据源了。</p>
+<p><code>测试添加流控规则</code><br>com.queen.shop.order.controller.api.ZookeeperConfigSender</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">package com.queen.shop.order.controller.api;</span><br><span class="line"></span><br><span class="line">import org.apache.curator.framework.CuratorFramework;</span><br><span class="line">import org.apache.curator.framework.CuratorFrameworkFactory;</span><br><span class="line">import org.apache.curator.retry.ExponentialBackoffRetry;</span><br><span class="line">import org.apache.zookeeper.CreateMode;</span><br><span class="line">import org.apache.zookeeper.data.Stat;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * Zookeeper config sender for demo</span><br><span class="line"> *</span><br><span class="line"> * @author guonanjun</span><br><span class="line"> *&#x2F;</span><br><span class="line">public class ZookeeperConfigSender &#123;</span><br><span class="line"></span><br><span class="line">    private static final int RETRY_TIMES &#x3D; 3;</span><br><span class="line">    private static final int SLEEP_TIME &#x3D; 1000;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        final String remoteAddress &#x3D; &quot;localhost:2181&quot;;</span><br><span class="line"></span><br><span class="line">        final String groupId &#x3D; &quot;sentinel_rules&#x2F;shop-api&quot;;</span><br><span class="line">        final String dataId &#x3D; &quot;rest-api-flow&quot;;</span><br><span class="line">        final String rule &#x3D; &quot;[\n&quot;</span><br><span class="line">                + &quot;  &#123;\n&quot;</span><br><span class="line">                + &quot;    \&quot;resource\&quot;: \&quot;version\&quot;,\n&quot;</span><br><span class="line">                + &quot;    \&quot;controlBehavior\&quot;: 0,\n&quot;</span><br><span class="line">                + &quot;    \&quot;count\&quot;: 2.0,\n&quot;</span><br><span class="line">                + &quot;    \&quot;grade\&quot;: 1,\n&quot;</span><br><span class="line">                + &quot;    \&quot;limitApp\&quot;: \&quot;default\&quot;,\n&quot;</span><br><span class="line">                + &quot;    \&quot;strategy\&quot;: 0\n&quot;</span><br><span class="line">                + &quot;  &#125;\n&quot;</span><br><span class="line">                + &quot;]&quot;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        CuratorFramework zkClient &#x3D; CuratorFrameworkFactory.newClient(remoteAddress, new ExponentialBackoffRetry(SLEEP_TIME, RETRY_TIMES));</span><br><span class="line">        zkClient.start();</span><br><span class="line">        String path &#x3D; getPath(groupId, dataId);</span><br><span class="line">        Stat stat &#x3D; zkClient.checkExists().forPath(path);</span><br><span class="line">        if (stat &#x3D;&#x3D; null) &#123;</span><br><span class="line">            zkClient.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, null);</span><br><span class="line">        &#125;</span><br><span class="line">        zkClient.setData().forPath(path, rule.getBytes());</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(3000);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        zkClient.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static String getPath(String groupId, String dataId) &#123;</span><br><span class="line">        String path &#x3D; &quot;&quot;;</span><br><span class="line">        if (groupId.startsWith(&quot;&#x2F;&quot;)) &#123;</span><br><span class="line">            path +&#x3D; groupId;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            path +&#x3D; &quot;&#x2F;&quot; + groupId;</span><br><span class="line">        &#125;</span><br><span class="line">        if (dataId.startsWith(&quot;&#x2F;&quot;)) &#123;</span><br><span class="line">            path +&#x3D; dataId;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            path +&#x3D; &quot;&#x2F;&quot; + dataId;</span><br><span class="line">        &#125;</span><br><span class="line">        return path;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者使用zkCli设置:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ls &#x2F;sentinel_rules&#x2F;shop-api&#x2F;rest-api-flow</span><br><span class="line">stat &#x2F;sentinel_rules&#x2F;shop-api&#x2F;rest-api-flow</span><br><span class="line">get &#x2F;sentinel_rules&#x2F;shop-api&#x2F;rest-api-flow</span><br><span class="line">set &#x2F;sentinel_rules&#x2F;shop-api&#x2F;rest-api-flow [&#123;&quot;resource&quot;:&quot;version&quot;,&quot;controlBehavior&quot;:0,&quot;count&quot;:2.0,&quot;grade&quot;:1,&quot;limitApp&quot;:&quot;default&quot;,&quot;strategy&quot;:0&#125;]</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他支持"><a href="#其他支持" class="headerlink" title="其他支持"></a>其他支持</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/Sentinel#feign-%E6%94%AF%E6%8C%81">Feign支持</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/Sentinel#resttemplate-%E6%94%AF%E6%8C%81">RestTemplate支持</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/Sentinel#%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E6%94%AF%E6%8C%81">动态数据源支持</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/Sentinel#endpoint-%E6%94%AF%E6%8C%81">Endpoint支持</a></li>
+</ul>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="https://reminance.github.io">Reminance</a>
+            <p>原文链接：<a href="https://reminance.github.io/2020/12/23/20201223-01/">https://reminance.github.io/2020/12/23/20201223-01/</a>
+            <p>发表日期：<a href="https://reminance.github.io/2020/12/23/20201223-01/">December 23rd 2020, 2:20:35 pm</a>
+            <p>更新日期：<a href="https://reminance.github.io/2020/12/23/20201223-01/">March 2nd 2021, 3:40:33 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2021/03/02/20210302-01/" title= "Eureka概述">
+                    <div class="nextTitle">Eureka概述</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2019/10/24/20191024-01/" title= "Mysql数据库的高级应用(存储过程，触发器、索引，视图，函数）">
+                    <div class="prevTitle">Mysql数据库的高级应用(存储过程，触发器、索引，视图，函数）</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- gitalk评论 -->
+
+    <!-- utteranc评论 -->
+
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:872666026@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Reminance" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <!-- <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span> -->
+        <span id="hexo-power">Powered by <a href="https://github.com/Reminance" target="_blank">Reminance</a></span><span class="iconfont-archer power">&#xe635;</span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+     <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+    <div style="width:300px;margin:0 auto; padding:20px 0;">
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102002607" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤ICP备19070816号</p></a>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102002607" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/avatar/beian.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤公网安备 44011102002607号</p></a>
+    </div>
+</footer>
+
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sentinel-%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">sentinel 简单使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">Sentinel 介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%A1%A3"><span class="toc-number">1.2.</span> <span class="toc-text">文档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-Sentinel-springboot"><span class="toc-number">1.3.</span> <span class="toc-text">如何使用 Sentinel(springboot)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dashboard-%E5%AE%89%E8%A3%85"><span class="toc-number">1.3.1.</span> <span class="toc-text">dashboard 安装</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96-Sentinel-%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">获取 Sentinel 控制台</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dashboard-%E5%90%AF%E5%8A%A8"><span class="toc-number">1.3.2.</span> <span class="toc-text">dashboard 启动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#springboot%E5%BA%94%E7%94%A8%E6%8E%A5%E5%85%A5"><span class="toc-number">1.3.3.</span> <span class="toc-text">springboot应用接入</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-pom-xml"><span class="toc-number">1.3.3.0.1.</span> <span class="toc-text">1. pom.xml</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E6%8E%A7%E5%88%B6%E5%8F%B0%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.3.0.2.</span> <span class="toc-text">2. 配置控制台信息</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AEsentinel-resource"><span class="toc-number">1.3.3.0.3.</span> <span class="toc-text">3. 配置sentinel resource</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-DataSource-%E6%89%A9%E5%B1%95"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">4. DataSource 扩展</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%94%AF%E6%8C%81"><span class="toc-number">1.4.</span> <span class="toc-text">其他支持</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2021 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span><a class="archive-post-title" href= "/2021/03/02/20210302-01/" >Eureka概述</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/23</span><a class="archive-post-title" href= "/2020/12/23/20201223-01/" >sentinel 简单使用</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/24</span><a class="archive-post-title" href= "/2019/10/24/20191024-01/" >Mysql数据库的高级应用(存储过程，触发器、索引，视图，函数）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span><a class="archive-post-title" href= "/2019/09/22/20190922-01/" >上传项目到中央仓库</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/20190911-01/" >SpringBoot配置https</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/07</span><a class="archive-post-title" href= "/2019/09/07/20190907-01/" >面向对象三大特征和五大原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/31</span><a class="archive-post-title" href= "/2019/08/31/20190831-01/" >使用fatedier/frp搭建内网穿透</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/24</span><a class="archive-post-title" href= "/2019/08/24/20190824-01/" >Explain详解与索引最佳实践</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/14</span><a class="archive-post-title" href= "/2019/08/14/20190814-01/" >刘瑜写给女儿的信：愿你慢慢长大[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span><a class="archive-post-title" href= "/2019/07/03/20190703-01/" >记Thymeleaf Nginx 配置动静分离</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/01</span><a class="archive-post-title" href= "/2019/07/01/20190701-01/" >日签(七月请对我好一点)-20190701</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2019/06/25/20190625-01/" >使用 Java8 Optional 的正确姿势[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href= "/2019/04/14/20190401-01/" >Summary-201904</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="生活"><span class="iconfont-archer">&#xe606;</span>生活</span>
+    
+        <span class="sidebar-tag-name" data-tags="面试"><span class="iconfont-archer">&#xe606;</span>面试</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
+    
+        <span class="sidebar-tag-name" data-tags="工作"><span class="iconfont-archer">&#xe606;</span>工作</span>
+    
+        <span class="sidebar-tag-name" data-tags="SpringBoot"><span class="iconfont-archer">&#xe606;</span>SpringBoot</span>
+    
+        <span class="sidebar-tag-name" data-tags="日签"><span class="iconfont-archer">&#xe606;</span>日签</span>
+    
+        <span class="sidebar-tag-name" data-tags="redis"><span class="iconfont-archer">&#xe606;</span>redis</span>
+    
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
+        <span class="sidebar-tag-name" data-tags="JAVA"><span class="iconfont-archer">&#xe606;</span>JAVA</span>
+    
+        <span class="sidebar-tag-name" data-tags="HTTPS"><span class="iconfont-archer">&#xe606;</span>HTTPS</span>
+    
+        <span class="sidebar-tag-name" data-tags="网络工具"><span class="iconfont-archer">&#xe606;</span>网络工具</span>
+    
+        <span class="sidebar-tag-name" data-tags="内网穿透"><span class="iconfont-archer">&#xe606;</span>内网穿透</span>
+    
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
+    
+        <span class="sidebar-tag-name" data-tags="sentinel"><span class="iconfont-archer">&#xe606;</span>sentinel</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring cloud"><span class="iconfont-archer">&#xe606;</span>spring cloud</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="工作"><span class="iconfont-archer">&#xe60a;</span>工作</span>
+    
+        <span class="sidebar-category-name" data-categories="生活"><span class="iconfont-archer">&#xe60a;</span>生活</span>
+    
+        <span class="sidebar-category-name" data-categories="spring-cloud"><span class="iconfont-archer">&#xe60a;</span>spring-cloud</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Reminance"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

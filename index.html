@@ -20,8 +20,16 @@
     <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Reminance">
+<meta property="og:url" content="https://reminance.github.io/index.html">
+<meta property="og:site_name" content="Reminance">
+<meta property="og:locale">
+<meta property="article:author" content="Reminance">
+<meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    
     <title>Reminance&#39;s Studio</title>
     <style type="text/css">
     @font-face {
@@ -678,16 +686,16 @@ fatedier/frp搭建：linux服务端下载安装包:
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2019/07/12/20190712-01/" >
+        <a class="abstract-title" href = "/2019/07/12/20190712-02/" >
             
-                <span>分布式唯一id：snowflake算法[转]</span>
+                <span>基于redis的延迟消息队列设计[转]</span>
         </a>
         <div class="abstract-content">
             @TOC
-分布式唯一id：snowflake算法思考缘起为什么会突然谈到分布式唯一id呢？原因是最近在准备使用RocketMQ，看看官网介绍：
-一句话，消息可能会重复，所以消费端需要做幂等。为什么消息会重复后续RocketMQ章节进行详细介绍，本节重点不在这里。
-为了达到业务的幂等，必须要有这样一个id存在，需要满足下面几个条件：
-同一业务场景要全局唯一。该id必须是在消息的发送方进行产生发送到MQ。消费端根据该id进行判断是否重复，确保幂等。在那里产生，和消费端进行判断等和这个id没有关系，这个id的要求就是局部唯一或者全局唯一即可，由于这个id是唯一的，可以用来当数据库的主键，既然要...
+基于redis的延迟消息队列设计需求背景用户下订单成功之后隔20分钟给用户发送上门服务通知短信订单完成一个小时之后通知用户对上门服务进行评价业务执行失败之后隔10分钟重试一次
+类似的场景比较多 简单的处理方式就是使用定时任务 假如数据比较多的时候 有的数据可能延迟比较严重,而且越来越多的定时业务导致任务调度很繁琐不好管理。
+队列设计目前可以考虑使用rabbitmq来满足需求 但是不打算使用,因为目前太多的业务使用了另外的MQ中间件。
+开发前需要考虑的问题？及时性 消费端能按时收到同一时间消息的消费权重可靠性 消息不能出现没有被消费掉的情况可恢复 假如有其他情况 导致消息系统不可...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -702,7 +710,7 @@ fatedier/frp搭建：linux服务端下载安装包:
     
         <a class="post-tag" href="javascript:void(0);" data-tags = "工作">工作</a>
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "算法">算法</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "redis">redis</a>
     
 </div>
             
@@ -712,7 +720,7 @@ fatedier/frp搭建：linux服务端下载安装包:
     <!-- paginator  -->
     
     <nav class="page-nav">
-        <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">NEXT &amp;#62;</a>
+        <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">NEXT &gt;</a>
     </nav>
     
 </main>
@@ -746,7 +754,7 @@ fatedier/frp搭建：linux服务端下载安装包:
             
                 <span class="iconfont-archer wechat" title=wechat>
                   
-                  <img class="profile-qr" src="/assets/github-code.png" />
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
                 </span>
             
         
@@ -842,7 +850,7 @@ fatedier/frp搭建：linux服务端下载安装包:
             
                 <span class="iconfont-archer wechat" title=wechat>
                   
-                  <img class="profile-qr" src="/assets/github-code.png" />
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
                 </span>
             
         
@@ -894,7 +902,7 @@ fatedier/frp搭建：linux服务端下载安装包:
     <div class="busuanzi-container">
     
      
-    <!-- <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span> -->
+     <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
     
     </div>
     
@@ -903,6 +911,7 @@ fatedier/frp搭建：linux服务端下载安装包:
         <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102002607" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/avatar/beian.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤公网安备 44011102002607号</p></a>
     </div>
 </footer>
+
     </div>
     <!-- toc -->
     
@@ -916,8 +925,6 @@ fatedier/frp搭建：linux服务端下载安装包:
     <div class="sidebar-content sidebar-content-show-archive">
           <div class="sidebar-panel-archives">
     <!-- 在ejs中将archive按照时间排序 -->
-    
-    
     
     
     
@@ -1170,12 +1177,12 @@ fatedier/frp搭建：linux服务端下载安装包:
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
         </li>
     
     
@@ -1203,39 +1210,39 @@ fatedier/frp搭建：linux服务端下载安装包:
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
     
-        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
-    
         <span class="sidebar-tag-name" data-tags="生活"><span class="iconfont-archer">&#xe606;</span>生活</span>
     
         <span class="sidebar-tag-name" data-tags="面试"><span class="iconfont-archer">&#xe606;</span>面试</span>
     
         <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
-        <span class="sidebar-tag-name" data-tags="日签"><span class="iconfont-archer">&#xe606;</span>日签</span>
+        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
     
         <span class="sidebar-tag-name" data-tags="工作"><span class="iconfont-archer">&#xe606;</span>工作</span>
     
-        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
-    
         <span class="sidebar-tag-name" data-tags="SpringBoot"><span class="iconfont-archer">&#xe606;</span>SpringBoot</span>
+    
+        <span class="sidebar-tag-name" data-tags="日签"><span class="iconfont-archer">&#xe606;</span>日签</span>
     
         <span class="sidebar-tag-name" data-tags="redis"><span class="iconfont-archer">&#xe606;</span>redis</span>
     
-        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
     
-        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
+        <span class="sidebar-tag-name" data-tags="JAVA"><span class="iconfont-archer">&#xe606;</span>JAVA</span>
+    
+        <span class="sidebar-tag-name" data-tags="HTTPS"><span class="iconfont-archer">&#xe606;</span>HTTPS</span>
     
         <span class="sidebar-tag-name" data-tags="网络工具"><span class="iconfont-archer">&#xe606;</span>网络工具</span>
     
         <span class="sidebar-tag-name" data-tags="内网穿透"><span class="iconfont-archer">&#xe606;</span>内网穿透</span>
     
-        <span class="sidebar-tag-name" data-tags="JAVA"><span class="iconfont-archer">&#xe606;</span>JAVA</span>
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
     
-        <span class="sidebar-tag-name" data-tags="spring cloud"><span class="iconfont-archer">&#xe606;</span>spring cloud</span>
-    
-        <span class="sidebar-tag-name" data-tags="HTTPS"><span class="iconfont-archer">&#xe606;</span>HTTPS</span>
+        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
     
         <span class="sidebar-tag-name" data-tags="sentinel"><span class="iconfont-archer">&#xe606;</span>sentinel</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring cloud"><span class="iconfont-archer">&#xe606;</span>spring cloud</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

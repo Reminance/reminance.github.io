@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="Reminance">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Reminance">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Eureka概述">
+<meta property="og:url" content="https://reminance.github.io/2021/03/02/20210302-01/index.html">
+<meta property="og:site_name" content="Reminance">
+<meta property="og:description" content="略">
+<meta property="og:locale">
+<meta property="og:image" content="https://reminance.github.io/assets/20210302-01/eureka_architecture.png">
+<meta property="article:published_time" content="2021-03-02T08:00:02.000Z">
+<meta property="article:modified_time" content="2021-03-02T09:22:30.142Z">
+<meta property="article:author" content="Reminance">
+<meta property="article:tag" content="spring cloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://reminance.github.io/assets/20210302-01/eureka_architecture.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    
+    <title>Eureka概述 · Reminance&#39;s Studio</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Reminance&#39;s Studio.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Eureka概述</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Reminance's Studio.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Eureka概述
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "spring cloud">spring cloud</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">11.6k</span>阅读时长: <span class="post-count reading-time">46 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2021/03/02</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>@<a href="../20210302-01">TOC</a></p>
+<h1 id="Eureka-note"><a href="#Eureka-note" class="headerlink" title="Eureka note"></a>Eureka note</h1><h2 id="github"><a href="#github" class="headerlink" title="github"></a>github</h2><p><code>https://github.com/Netflix/eureka</code></p>
+<blockquote>
+<p>注：这个note是自”<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/wiki">https://github.com/Netflix/eureka/wiki</a>“整理翻译过来的。(2020-03-02)</p>
+</blockquote>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Eureka是一个基于REST (Representational State Transfer)的服务，主要用于AWS云中的服务定位，<br>以实现中间层服务器的负载平衡和故障转移。</p>
+<h2 id="Building"><a href="#Building" class="headerlink" title="Building"></a>Building</h2><p>由于一些必需的库是<code>java8</code>(<code>servo</code>)，所以构建需要<code>java8</code>，但是源和目标兼容性仍然设置为<code>1.7</code>。<br>注意，应该签出tag标记来执行构建。</p>
+<h2 id="Eureka-1-0"><a href="#Eureka-1-0" class="headerlink" title=" Eureka 1.0 "></a><a href="#Eureka-1.0-WIKI"> Eureka 1.0 </a></h2><ul>
+<li><a href="#Eureka-at-a-glance"> 粗看Eureka </a></li>
+<li><a href="#Configuring-Eureka"> 配置Eureka </a></li>
+<li><a href="#Building-Eureka-Client-and-Server"> 构建Eureka客户端与服务端 </a></li>
+<li><a href="#Running-the-Demo-Application"> 运行Demo应用 </a></li>
+<li><a href="#Deploying-Eureka-Servers-in-EC2"> 在EC2中发布Eureka服务端 </a></li>
+<li><a href="#Understanding-Eureka-Client-Server-Communication"> 理解Eureka 客户端/服务端 通信 </a></li>
+<li><a href="#Server-Self-Preservation-Mode"> 服务端自保模式 </a></li>
+<li><a href="#Eureka-REST-operations"> Eureka REST 操作 </a></li>
+<li><a href="#Understanding-Eureka-Peer-to-Peer-communication"> 理解Eureka点对点通信 </a></li>
+<li><a href="#Overriding-Default-Configurations"> 覆写默认配置项 </a></li>
+<li><a href="#FAQ"> FAQ(aka:frequently asked questions;常见问题) </a></li>
+</ul>
+<h2 id="Eureka-2-0-已停止"><a href="#Eureka-2-0-已停止" class="headerlink" title="Eureka 2.0(已停止)"></a>Eureka 2.0(已停止)</h2><p>Eureka 2.0上现有的开源工作已经停止。在现有的工作仓库的2.x分支上发行的代码库和工件部分，使用时需要自担风险。<br>Eureka1.x是Netflix服务发现系统的核心部分，现在仍然是一个活跃的项目。</p>
+<hr>
+<h2 id="Eureka-1-0-WIKI"><a href="#Eureka-1-0-WIKI" class="headerlink" title="Eureka 1.0 WIKI"></a>Eureka 1.0 WIKI</h2><h3 id="Eureka-at-a-glance"><a href="#Eureka-at-a-glance" class="headerlink" title="Eureka at a glance"></a>Eureka at a glance</h3><hr>
+<h4 id="Eureka是什么"><a href="#Eureka是什么" class="headerlink" title="Eureka是什么?"></a>Eureka是什么?</h4><p>Eureka是一个基于REST (Representational State Transfer)的服务，主要用于AWS云中的服务定位，以实现中间层服务器的负载平衡和故障转移。<br>我们称这个服务为Eureka服务端。<br>Eureka还附带了一个基于java的客户端组件，即Eureka客户端，它使与服务的交互变得更加容易。<br>客户端还有一个内置的负载均衡器，它执行基本的轮循负载平衡。<br>在Netflix，一个更复杂的负载均衡器封装了Eureka，以提供基于流量、资源使用、错误条件等几个因素的加权负载平衡，以提供卓越的弹性。</p>
+<h4 id="Eureka有什么作用"><a href="#Eureka有什么作用" class="headerlink" title="Eureka有什么作用?"></a>Eureka有什么作用?</h4><p>在AWS云中，由于其固有的特性，服务器来来往往。与传统的负载均衡器不同，传统的负载均衡器使用的是已知IP地址和主机名的服务器，<br>而在AWS中，负载均衡需要更复杂的技术来动态注册和注销服务器。<br>由于AWS还没有提供中间层负载平衡器，Eureka填补了中间层负载平衡领域的一个巨大空白。</p>
+<h4 id="Eureka和AWS-ELB-有什么不同"><a href="#Eureka和AWS-ELB-有什么不同" class="headerlink" title="Eureka和AWS ELB 有什么不同?"></a>Eureka和AWS ELB 有什么不同?</h4><p>AWS弹性负载平衡器是面向终端用户web流量的边缘服务的负载平衡解决方案。Eureka满足了中间层负载平衡的需求。<br>虽然理论上你可以把中间层服务放在AWS ELB后面，但在EC2 classic中，你把中间层服务暴露给外界，这样就失去了AWS安全组的所有用处。</p>
+<h4 id="Eureka和Route-53-有什么不同"><a href="#Eureka和Route-53-有什么不同" class="headerlink" title="Eureka和Route 53 有什么不同?"></a>Eureka和Route 53 有什么不同?</h4><p>Route 53是一种命名服务，类似于Eureka可以为中间层服务器提供相同的服务，但相似之处仅限于此。<br>Route 53是一个DNS服务，它可以托管你的DNS记录，即使是非aws数据中心。Route 53也可以跨AWS区域进行基于延迟的路由。<br>Eureka类似于内部DNS，与世界各地的DNS服务器没有任何关系。<br>Eureka也是区域隔离的，也就是说它不知道AWS其他区域的服务器。它保存信息的主要目的是为了在区域内实现负载平衡。</p>
+<h4 id="Eureka在Netflix是如何使用的"><a href="#Eureka在Netflix是如何使用的" class="headerlink" title="Eureka在Netflix是如何使用的?"></a>Eureka在Netflix是如何使用的?</h4><p>在Netflix，除了在中间层负载平衡中扮演关键角色外，Eureka还用于以下目的。</p>
+<ul>
+<li>通过Netflix Asgard进行红黑部署 - 一个使云部署更容易的开源服务。Eureka通过与Asgard交互， 在出现问题时快速无缝地部署服务的新旧版本。<ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/45259589/whats-the-difference-between-red-black-deployment-and-blue-green-deployment">什么是红黑部署/蓝绿部署</a></li>
+</ul>
+</li>
+<li>使我们部署的cassandra在需要维护时得以在流量中抽取出实例。</li>
+<li>使我们的memcached缓存服务得以识别环中的节点列表。</li>
+<li>用于由于各种其他原因而携带关于服务的其他应用程序特定元数据。</li>
+</ul>
+<h4 id="什么时候该使用Eureka"><a href="#什么时候该使用Eureka" class="headerlink" title="什么时候该使用Eureka?"></a>什么时候该使用Eureka?</h4><p>你通常在AWS云中运行，并且你有大量的中间层服务，你不希望这些服务注册到AWS ELB或暴露来自外部世界的流量。<br>您要么正在寻找一个简单的轮询负载平衡解决方案，要么愿意根据您的负载平衡需求编写您自己的Eureka包装器。<br>您不需要保持会话，而是在外部缓存(如memcached)中加载会话数据。<br>更重要的是，如果您的架构适合使用基于客户端的负载平衡器的模型，那么Eureka就可以很好地适应这种用法。</p>
+<h4 id="应用程序客户端和应用程序服务端让如何通信"><a href="#应用程序客户端和应用程序服务端让如何通信" class="headerlink" title="应用程序客户端和应用程序服务端让如何通信?"></a>应用程序客户端和应用程序服务端让如何通信?</h4><p>通讯技术可以是你喜欢的任何东西。<br>Eureka帮助您找到有关您想要通信的服务的信息，但不会对通信协议或方法施加任何限制。<br>例如，您可以使用Eureka来获取目标服务器地址，并使用诸如thrift、http(s)或任何其他RPC机制之类的协议。</p>
+<h4 id="高层体系结构"><a href="#高层体系结构" class="headerlink" title="高层体系结构"></a>高层体系结构</h4><p><img src="/assets/20210302-01/eureka_architecture.png" alt="high level architecture"><br>上面的架构描述了Eureka是如何在Netflix上部署的，这是你通常运行它的方式。<br>每个区域有一个eureka集群，它只知道其区域内的实例。每个区域至少有一个Eureka服务端来处理区域故障。</p>
+<p>服务向Eureka注册，然后每30秒发送心跳信号更新租约。如果客户端不能续订租约几次，它将在大约90秒内从服务器注册表中删除。<br>注册信息和续订复制到集群中的所有eureka节点。<br>来自任何区域的客户端可以查找注册表信息(每30秒发生一次)，以定位它们的服务(可以在任何区域)并进行远程调用。</p>
+<h4 id="非java服务和客户端"><a href="#非java服务和客户端" class="headerlink" title="非java服务和客户端"></a>非java服务和客户端</h4><p>对于非基于Java的服务，您可以选择用服务的语言实现eureka的客户端部分，或者运行“side car”，<br>它本质上是一个Java应用程序，其中嵌入了一个处理注册和心跳的eureka客户端。<br>对于Eureka客户端支持的所有操作，也公开了基于REST的端点。<br>非java客户端可以使用REST端点来查询有关其他服务的信息。</p>
+<h4 id="可配置能力"><a href="#可配置能力" class="headerlink" title="可配置能力"></a>可配置能力</h4><p>使用Eureka，您可以动态地添加或删除集群节点。您可以从超时调优内部配置到线程池。<br>Eureka使用archaius，如果您有一个配置源实现，那么许多这些配置都可以动态调优。</p>
+<h4 id="弹性能力"><a href="#弹性能力" class="headerlink" title="弹性能力"></a>弹性能力</h4><p>在AWS云环境中，我们很难不考虑我们构建的所有东西的弹性。Eureka从我们获得的经验中受益，客户端和服务器都内置了弹性。</p>
+<p>构建Eureka客户端是为了处理一个或多个Eureka服务端的故障。由于Eureka客户端中包含注册表缓存信息，因此即使在所有Eureka服务器都宕机的情况下，它们也可以很好地运行。</p>
+<p>Eureka服务端对其他Eureka服务器的下降具有弹性。即使在客户端和服务器之间的网络分区期间，服务器也具有内置的弹性，可以防止大规模停机。</p>
+<h4 id="监控能力"><a href="#监控能力" class="headerlink" title="监控能力"></a>监控能力</h4><p>Eureka使用servo来跟踪客户端和服务器中的大量信息，以获得性能、监视和警报。数据通常在JMX注册表中可用，可以导出到Amazon Cloud Watch。</p>
+<hr>
+<h3 id="Configuring-Eureka"><a href="#Configuring-Eureka" class="headerlink" title="Configuring Eureka"></a>Configuring Eureka</h3><hr>
+<p>阅读<a href="#Eureka-at-a-glance">Eureka-at-a-glance</a> 页面以更好地理解设置的概念。</p>
+<p>Eureka包含两个组件——Eureka客户端和Eureka服务端。使用Eureka的体系结构通常有两个应用程序</p>
+<ul>
+<li>应用程序客户端 使用Eureka客户端向应用程序服务端发出请求。</li>
+<li>应用程序服务端 接收来自应用程序客户端的请求并发回响应。</li>
+</ul>
+<p>设置包括以下</p>
+<ul>
+<li>Eureka服务端</li>
+<li>应用程序客户端的Eureka客户端</li>
+<li>应用程序服务端的Eureka客户端</li>
+</ul>
+<p>Eureka可以在AWS和非AWS环境中运行。</p>
+<p><strong>如果在云环境中运行，则需要传入java命令行参数<code>-Deureka.datacenter=cloud</code>以便于Eureka客户端/服务端知道初始化特定于AWS云的信息。</strong></p>
+<h4 id="配置Eureka客户端"><a href="#配置Eureka客户端" class="headerlink" title="配置Eureka客户端"></a>配置Eureka客户端</h4><h5 id="先决条件"><a href="#先决条件" class="headerlink" title="先决条件"></a>先决条件</h5><ul>
+<li>JDK 1.8或更高版本</li>
+</ul>
+<p>您可以通过以下选项获得Eureka客户端二进制文件。总是尝试获得最新的版本，因为往往会有更多的修复。</p>
+<ul>
+<li>您可以使用这个URL下载Eureka客户端二进制文件”<a target="_blank" rel="noopener" href="http://search.maven.org/#search%7Cga%7C1%7Ceureka-client">http://search.maven.org/#search%7Cga%7C1%7Ceureka-client</a>“</li>
+<li>您可以将Eureka客户端作为maven依赖项添加<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.netflix.eureka<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>您可以按照<a href="#Building-Eureka-Client-and-Server">这里</a>这里指定的方式构建客户端。</li>
+</ul>
+<h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>配置Eureka客户端最简单的方法是使用properties属性文件。默认情况下，Eureka客户端搜索类路径中的属性文件eureka-client.properties。<br>Eureka客户端会进一步搜索环境特定的属性文件中声明的属性进行覆盖。<br>环境通常是test或prod，由*-Deureka.environment*的java命令行参数提供，切换到eureka客户端(不带.properties后缀)。<br>相应地，客户端也会搜索eureka-client-{test,prod}.properties。</p>
+<p>您可以在<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/tree/master/eureka-examples/conf">这里</a>查看默认配置的示例。<br>您可以复制这些配置并根据需要进行编辑，并将它们放置在类路径中。<br>如果出于某种原因想要更改属性文件的名称，可以在java命令行开关中指定-Deureka.client.props=(不带后缀)，其中是要搜索的属性文件的名称。</p>
+<p>文件中的属性解释了它们的用途。至少需要配置以下内容:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Application</span> <span class="string">Name (eureka.name)</span></span><br><span class="line"><span class="attr">Application</span> <span class="string">Port (eureka.port)</span></span><br><span class="line"><span class="attr">Virtual</span> <span class="string">HostName (eureka.vipAddress)</span></span><br><span class="line"><span class="attr">Eureka</span> <span class="string">Service Urls (eureka.serviceUrls)</span></span><br></pre></td></tr></table></figure>
+
+<p>有关更高级的配置，请查看以下链接中的可用选项。<br><a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/EurekaInstanceConfig.java">https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/EurekaInstanceConfig.java</a><br><a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/discovery/EurekaClientConfig.java">https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/discovery/EurekaClientConfig.java</a></p>
+<h4 id="配置Eureka服务端"><a href="#配置Eureka服务端" class="headerlink" title="配置Eureka服务端"></a>配置Eureka服务端</h4><h5 id="先决条件-1"><a href="#先决条件-1" class="headerlink" title="先决条件"></a>先决条件</h5><ul>
+<li>JDK版本为1.8及以上</li>
+<li>Tomcat版本为6.0.10及以上</li>
+</ul>
+<p>使用Eureka服务端，您可以通过以下方式获取二进制文件</p>
+<ul>
+<li>您可以从<a href="#Building-Eureka-Client-and-Server">这里</a>这里指定的源构建WAR archive存档。</li>
+<li>您可以使用这个URL从mavencentral下载WAR存档”<a target="_blank" rel="noopener" href="http://search.maven.org/#search%7Cga%7C1%7Ceureka-server">http://search.maven.org/#search%7Cga%7C1%7Ceureka-server</a>“</li>
+</ul>
+<h5 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h5><p>Eureka服务端有两组配置</p>
+<ul>
+<li>Eureka客户端配置如上所述。</li>
+<li>Eureka服务端配置。</li>
+</ul>
+<p>配置Eureka服务端最简单的方法是使用类似于上面的Eureka客户端的属性文件。首先，按照上面指定的方式配置与服务器一起运行的Eureka客户端。<br>Eureka服务端本身启动一个Eureka客户端，它使用这个客户端来寻找其他Eureka服务端。<br>因此，您需要首先为Eureka服务端配置Eureka客户端，就像您对连接到Eureka服务的任何其他客户端所做的那样。<br>Eureka服务端将使用其Eureka客户端配置来识别具有相同名称(即eureka.name)的对等Eureka服务端</p>
+<p>在配置了Eureka客户端之后，如果您正在AWS中运行，您可能需要配置Eureka服务端。<br>Eureka服务端默认搜索类路径中的属性文件eureka-server.properties。<br>它会进一步在特定于环境的属性文件中搜索特定的环境覆盖。<br>环境通常是test或prod，由java命令行*-Deureka.environment*提供的切换Eureka服务端(不带.properties后缀)。<br>相应地，服务端也会搜索eureka-server-{test,prod}.properties。</p>
+<h5 id="为本地开发进行配置"><a href="#为本地开发进行配置" class="headerlink" title="为本地开发进行配置"></a>为本地开发进行配置</h5><p>当运行Eureka服务端进行本地开发时，通常需要等待约3分钟，直到它完全启动。<br>这是由于默认的服务器行为，搜索对等点同步，并在没有找到可用的对等点时重试。<br>可以通过设置属性<code>eureka.numberRegistrySyncRetries=0</code>来减少此等待时间。</p>
+<h5 id="AWS的配置"><a href="#AWS的配置" class="headerlink" title="AWS的配置"></a>AWS的配置</h5><p>如果您像<a href="#Deploying-Eureka-Servers-in-EC2">这里</a>解释的那样在AWS中运行，则需要额外的配置。<br>有关更高级的服务器配置，请参考<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-core/src/main/java/com/netflix/eureka/EurekaServerConfig.java">这里</a>提供的选项。</p>
+<p>如果你在<a href="#Building-Eureka-Client-and-Server">构建</a>WAR archive存档, 你可以编辑<em>eureka-server/conf</em>下对应的配置文件，在创建archive存档之前，构建将负责放置这些属性文件到<code>WEB-INF/classes</code>目录下</p>
+<p>如果您从maven下载archive存档，那么您可以自己将编辑过的属性文件合并到<code>WEB-INF/classes</code>下。</p>
+<p><a href="#Running-the-Demo-Application">运行</a>演示应用程序可以帮助您更好地理解配置。</p>
+<h5 id="客户端-服务端版本的兼容性"><a href="#客户端-服务端版本的兼容性" class="headerlink" title="客户端/服务端版本的兼容性"></a>客户端/服务端版本的兼容性</h5><p>我们使用Semantic Versioning(什么是<a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/introduction-semantic-versioning/">Semantic Versioning</a>?)来管理Eureka。<br>并将在小版本升级内维护客户端/服务端协议兼容性(例如1。x版本应该在客户端和服务端部署之间有兼容的协议)。<br>一般来说，让服务端使用比客户端更新的版本总是更安全的。</p>
+<hr>
+<h3 id="Building-Eureka-Client-and-Server"><a href="#Building-Eureka-Client-and-Server" class="headerlink" title="Building Eureka Client and Server"></a>Building Eureka Client and Server</h3><hr>
+<h4 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h4><ul>
+<li>Git版本1.7.11.3或更高</li>
+</ul>
+<h4 id="构建步骤"><a href="#构建步骤" class="headerlink" title="构建步骤"></a>构建步骤</h4><ul>
+<li>安装最新的git包。</li>
+<li>从github获得Eureka来源<code>git clone https://github.com/Netflix/eureka.git</code></li>
+<li>现在，通过在提取源代码的目录中执行以下操作来构建Eureka服务端。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd eureka</span><br><span class="line">.&#x2F;gradlew clean build</span><br></pre></td></tr></table></figure></li>
+<li>您可以找到以下的artifacts工件<ul>
+<li>Eureka Server WAR archive (./eureka-server/build/libs/eureka-server-XXX.war )</li>
+<li>Eureka Client (./eureka-client/build/libs/eureka-client-XXX.jar )</li>
+<li>Dependencies (./eureka-server/testlibs/) (如果您不想使用maven来下载依赖项，可以使用这些archives存档)</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="Running-the-Demo-Application"><a href="#Running-the-Demo-Application" class="headerlink" title="Running the Demo Application"></a>Running the Demo Application</h3><hr>
+<p>演示应用程序打包附带了配置、构建和运行运行Eureka所需的所有组件的能力</p>
+<ul>
+<li>Eureka Server</li>
+<li>Application Service</li>
+<li>Application Client</li>
+</ul>
+<p>有关了解配置的更多细节，请访问<a href="#Configuring-Eureka">此页面</a>。</p>
+<h4 id="关于Demo"><a href="#关于Demo" class="headerlink" title="关于Demo"></a>关于Demo</h4><p>Demo将帮助您设置一个Eureka服务端，监听您选择的端口。<br>它还将帮助您设置将提供请求的应用程序服务和将向该服务发送请求的应用程序客户端。</p>
+<p>应用程序服务注册到Eureka服务端，应用程序客户端可以查找并将请求发送到应用程序服务。<br>客户端和服务端在交易消息之后优雅地退出。</p>
+<h4 id="关于Demo服务端的声明"><a href="#关于Demo服务端的声明" class="headerlink" title="关于Demo服务端的声明"></a>关于Demo服务端的声明</h4><p>Demo演示服务端被配置为易于为演示用例进行设置，但没有配置为适合于生产使用。仅限于了解如何正确配置Eureka服务端。</p>
+<h4 id="Eureka服务端配置"><a href="#Eureka服务端配置" class="headerlink" title="Eureka服务端配置"></a>Eureka服务端配置</h4><ul>
+<li>切换到eureka-server/conf/目录下，并按需修改编辑eureka-client.properties和eureka-client-test.properties文件。(你不需要编辑eureka-server.properties属性文件，除非您正在设置服务端的高级配置)</li>
+<li><a href="#Building-Eureka-Client-and-Server">构建</a>应用程序</li>
+<li>上面的构建还设置了运行演示服务和演示客户端所需的所有库。</li>
+<li>拷贝WAR artifact到你tomcat 部署目录的<code>——￥TOMCAT_HOME/webapps/</code>下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp .&#x2F;eureka-server&#x2F;build&#x2F;libs&#x2F;eureka-server-XXX-SNAPSHOT.war $TOMCAT_HOME&#x2F;webapps&#x2F;eureka.war</span><br></pre></td></tr></table></figure></li>
+<li>启动tomcat服务器。访问<a target="_blank" rel="noopener" href="http://localhost:8080/eureka">http://localhost:8080/eureka</a>以验证那里的信息。您的服务器的eureka客户端应该在30秒内注册，您应该在那里看到这些信息。</li>
+</ul>
+<h4 id="应用程序服务的Eureka客户端配置"><a href="#应用程序服务的Eureka客户端配置" class="headerlink" title="应用程序服务的Eureka客户端配置"></a>应用程序服务的Eureka客户端配置</h4><ul>
+<li>导航到eureka-examples/conf目录并按需修改编辑sample-eureka-service.properties文件</li>
+</ul>
+<h4 id="应用程序客户端的Eureka客户端配置"><a href="#应用程序客户端的Eureka客户端配置" class="headerlink" title="应用程序客户端的Eureka客户端配置"></a>应用程序客户端的Eureka客户端配置</h4><ul>
+<li>导航到eureka-examples/conf目录并按需修改编辑sample-eureka-client.properties文件</li>
+</ul>
+<h4 id="运行Demo"><a href="#运行Demo" class="headerlink" title="运行Demo"></a>运行Demo</h4><p>参见示例说明<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/tree/master/eureka-examples">https://github.com/Netflix/eureka/tree/master/eureka-examples</a></p>
+<hr>
+<h3 id="Deploying-Eureka-Servers-in-EC2"><a href="#Deploying-Eureka-Servers-in-EC2" class="headerlink" title="Deploying-Eureka-Servers-in-EC2"></a>Deploying-Eureka-Servers-in-EC2</h3><hr>
+<h4 id="端点配置概述"><a href="#端点配置概述" class="headerlink" title="端点配置概述"></a>端点配置概述</h4><p>Eureka服务端需要进行配置，以便每个服务端都知道其他所有对等服务端。请参阅下面的示例，了解如何为DNS方法和基于属性的方法做到这一点。</p>
+<p>此外，eureka服务端复制可以批处理，以提高效率。若要启用批量复制，请设置<code>eureka.shouldBatchReplication=true</code>。有关更多细节，请参阅DefaultEurekaServerConfig.java。</p>
+<h4 id="AWS配置概述"><a href="#AWS配置概述" class="headerlink" title="AWS配置概述"></a>AWS配置概述</h4><p>在AWS云中，实例来来往往。这意味着您无法使用标准主机名或IP地址来识别Eureka服务端。<br>但是，由于Eureka服务端可以帮助您识别更改主机名的其他服务，因此您需要Eureka服务器的一组标准的、可很好识别的地址。</p>
+<p>这就是AWS EC2弹性IP地址派上用场的地方。如果您以前没有听说过弹性IP地址，那么<a target="_blank" rel="noopener" href="http://aws.amazon.com/articles/1346">这是一份必读</a>。</p>
+<p>第一步是为您将使用安装程序运行的Eureka服务端获取一个弹性IP。<br>理想情况下，您应该使用<a href="#Eureka-at-a-glance">这里指定的架构</a>运行Eureka。 因此，集群中的每台服务器都需要一个弹性IP。<br>一旦您使用弹性ip地址列表配置了您的Eureka服务端，Eureka服务器将处理查找未使用的弹性ip并在启动期间将其绑定到自身的麻烦。</p>
+<p>通常在AWS区域内的Eureka集群有一个<a target="_blank" rel="noopener" href="http://aws.amazon.com/autoscaling/">ASG</a>，实例启动被配置为平均分布到所有区域。<br>这意味着，对于冗余和区域故障，每个区域至少要启动一个Eureka服务端。每当一个实例被杀死时，ASG就会在清空的区域内启动一个新的Eureka服务器。<br>新服务器将从该区域选择一个自由的弹性IP，并将自己绑定到那里。<br>对于正在访问Eureka服务端的客户端来说，这是透明的，而且业务正常，因为Eureka客户端会自动故障转移到其他服务器，然后在服务器恢复时再次重新连接。</p>
+<p>弹性IPs有两种配置方式，根据用户需要的灵活程度不同。<br>在Netflix，我们希望透明地添加新的区域或新的Eureka服务端，因此我们使用DNS模型来分配新的eip，客户端和服务器都可以动态地找到它们。<br>将一个简单的模型来定义他们的尤里卡配置文件,但缺点是,<br>他们限于<a target="_blank" rel="noopener" href="https://aws.amazon.com/amis/">AMI</a>和比如分布式下的1000个的实例需要互相交谈和添加或删除区域可能非常棘手,<br>因为你需要部署新的AMI与改变所有客户端的配置。</p>
+<h4 id="使用property属性文件配置EIPs"><a href="#使用property属性文件配置EIPs" class="headerlink" title="使用property属性文件配置EIPs"></a>使用property属性文件配置EIPs</h4><p>在Eureka服务端中配置的第一个信息是区域的可用区域。<br>这在<em>eureka-client.properties</em>(或eureka-client-test.properties 或eureka-client-prod.properties，如果你想要环境覆盖)中完成。</p>
+<p>以下面为例，”us-east-1”区域设置3个可用分区us-east-1c、us-east-1d、us-east-1e。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">eureka.us-east-1.availabilityZones&#x3D;us-east-1c,us-east-1d,us-east-1e</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>接下来，您要为Eureka侦听请求的每个区域配置服务url。通过提供以逗号分隔的列表，可以为一个区域配置多个Eureka服务端。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">eureka.serviceUrl.us-east-1c&#x3D;http:&#x2F;&#x2F;ec2-552-627-568-165.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;,http:&#x2F;&#x2F;ec2-368-101-182-134.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br><span class="line">eureka.serviceUrl.us-east-1d&#x3D;http:&#x2F;&#x2F;ec2-552-627-568-170.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br><span class="line">eureka.serviceUrl.us-east-1e&#x3D;http:&#x2F;&#x2F;ec2-500-179-285-592.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br></pre></td></tr></table></figure>
+<p>然后，相同的配置将包含在注册到Eureka服务的Eureka客户端和希望从Eureka服务端找到服务的Eureka客户端中。</p>
+<h4 id="通过DNS方式配置EIPs"><a href="#通过DNS方式配置EIPs" class="headerlink" title="通过DNS方式配置EIPs"></a>通过DNS方式配置EIPs</h4><p>如果您正在寻找灵活性，您应该使用DNS配置Eureka服务url。<br>首先为区域配置一个DNS名称，该名称可用于查找可用区域列表。 因为使用DNS，您只能为DNS名称找到一个CNAME，所以我们使用TXT记录来查找DNS名称列表。<br>例如，下面是DNS服务器中创建的DNS TXT记录，它列出了一个区域可用的DNS名称集。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">txt.us-east-1.mydomaintest.netflix.net&#x3D;&quot;us-east-1c.mydomaintest.netflix.net&quot; </span><br><span class="line">&quot;us-east-1d.mydomaintest.netflix.net&quot; &quot;us-east-1e.mydomaintest.netflix.net&quot;</span><br></pre></td></tr></table></figure>
+<p>然后，可以为每个区域递归地定义TXT记录，如下所示(如果每个区域有多个主机名，则使用空格分隔)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">txt.us-east-1c.mydomaintest.netflix.net&#x3D;&quot;ec2-552-627-568-165.compute-1.amazonaws.com&quot; </span><br><span class="line">&quot;ec2-368-101-182-134.compute-1.amazonaws.com&quot;</span><br><span class="line">txt.us-east-1d.mydomaintest.netflix.net&#x3D;&quot;ec2-552-627-568-170.compute-1.amazonaws.com&quot;</span><br><span class="line">txt.us-east-1e.mydomaintest.netflix.net&#x3D;&quot;ec2-500-179-285-592.compute-1.amazonaws.com&quot;</span><br></pre></td></tr></table></figure>
+<p>然后在Eureka服务端(Eureka -client.properties)和所有Eureka客户端中指定以下属性，以便它们能够查找DNS并找到通信所需的信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eureka.shouldUseDns&#x3D;true</span><br><span class="line">eureka.eurekaServer.domainName&#x3D;mydomaintest.netflix.net</span><br><span class="line">eureka.eurekaServer.port&#x3D;7001</span><br><span class="line">eureka.eurekaServer.context&#x3D;eureka&#x2F;v2</span><br></pre></td></tr></table></figure>
+<p>在Netflix，我们使用这个模型来动态 增加/删除 新的Eureka服务端，从而在几分钟内将信息传播到数千个客户端。</p>
+<h4 id="使用服务urls分配EIPs"><a href="#使用服务urls分配EIPs" class="headerlink" title="使用服务urls分配EIPs"></a>使用服务urls分配EIPs</h4><p>那么，当我们要为服务器分配EIPs时，为什么还要定义URLs呢?任何两个希望彼此通信的实例通常使用公共主机名，以便AWS安全组遵守安全性限制。<br>Eureka服务端使用这些URL彼此通信，每个URL包含一个公共主机名(ec2-552-627-568-170.compute-1.amazonaws.com)，它来自一个弹性IP(552.627.568.170)。</p>
+<p>Eureka服务端根据它所启动的区域找到一个EIP。然后，它尝试从该区域找到一个未使用的EIP，然后在启动期间将该EIP绑定到自己。</p>
+<p>Eureka如何找到未使用的EIPs? 它使用Eureka客户端来查找对等实例列表，查看它们与哪些EIPs绑定，并选择未绑定的eip。<br>它倾向于找到分配给它所在区域的EIP，这样该区域中所有其他实例的Eureka客户端就可以与位于同一区域的Eureka服务端进行通信。<br>如果Eureka服务端不能在其区域找到任何空闲的eip，它将尝试在其他区域中分配的eip。<br>如果所有这些都被绑定，那么Eureka服务端就会启动并等待一个EIP变成空闲的，并每5分钟尝试一次绑定EIP。</p>
+<p>Eureka客户端同样尝试寻找位于同一区域的Eureka服务端，如果它们找不到任何服务器，它们将故障转移到其他区域的Eureka服务器。</p>
+<h4 id="Eureka故障转移"><a href="#Eureka故障转移" class="headerlink" title="Eureka故障转移"></a>Eureka故障转移</h4><p>当为客户端提供了Eureka服务端列表时，Eureka客户端将自动故障转移到集群中的其他节点。让我们考虑下面的配置来理解它是如何工作的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eureka.us-east-1.availabilityZones&#x3D;us-east-1c,us-east-1d,us-east-1e</span><br><span class="line">eureka.serviceUrl.us-east-1c&#x3D;http:&#x2F;&#x2F;ec2-552-627-568-165.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;,http:&#x2F;&#x2F;ec2-368-101-182-134.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br><span class="line">eureka.serviceUrl.us-east-1d&#x3D;http:&#x2F;&#x2F;ec2-552-627-568-170.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br><span class="line">eureka.serviceUrl.us-east-1e&#x3D;http:&#x2F;&#x2F;ec2-500-179-285-592.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;v2&#x2F;</span><br></pre></td></tr></table></figure>
+<p>我们定义了3个区域(us-east-1c, us-east-1d和us-east- 1e)，每个区域只有一个EIP。<br>比方说,例如Eureka服务端运行在us-east-1c位置<a target="_blank" rel="noopener" href="http://ec2-552-627-568-165.compute-1.amazonaws.com:7001/eureka/v2/fails">http://ec2-552-627-568-165.compute-1.amazonaws.com:7001/eureka/v2/fails</a>,<br>所有eureka客户自动到下一个服务器通信区位于<a target="_blank" rel="noopener" href="http://ec2-552-627-568-170.compute-1.amazonaws.com:7001/eureka/v2/%E3%80%82">http://ec2-552-627-568-170.compute-1.amazonaws.com:7001/eureka/v2/。</a><br>如果失败，客户端将尝试列表中的下一个，以此类推。</p>
+<p>当失败的服务器重新启动时，eureka客户端自动重新连接到其区域中的服务器。</p>
+<h4 id="Eureka的AWS特殊properties属性配置"><a href="#Eureka的AWS特殊properties属性配置" class="headerlink" title="Eureka的AWS特殊properties属性配置"></a>Eureka的AWS特殊properties属性配置</h4><p>在AWS云环境中，传入java命令行属性 <strong>-Deureka.datacenter=cloud</strong> 这样Eureka客户端/服务器就知道初始化特定于AWS云的信息。</p>
+<p>Eureka服务端需要AWS访问才能在EC2中运行。对此有两种选择。<br>使用默认配置(no)，服务器将使用EC2实例上的InstanceProfileCredentials，或者您也可以通过配置显式设置AWS accessId和secretKey:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">eureka.awsAccessId&#x3D;</span><br><span class="line">eureka.awsSecretKey&#x3D;</span><br></pre></td></tr></table></figure>
+
+<h4 id="AWS访问策略"><a href="#AWS访问策略" class="headerlink" title="AWS访问策略"></a>AWS访问策略</h4><p>Eureka尝试查询ASG相关信息，以确保启动的实例自动<code>OUT_OF_SERVICE</code>退出服务或启动，这取决于Autoscaling group属性中的“addToLoadbalancer”标志的值。<br>在配置Eureka客户端时，通过指定此属性来<a href="#Configuring-Eureka">配置</a>用于确定您属于哪个ASG的属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eureka.asgName</span><br></pre></td></tr></table></figure>
+<p>通过Eureka服务端可以查询ASG信息，也可以对云中的IPs进行绑定/解绑定。因此AWS策略应该配置为允许上述访问。下面是一个带有所需访问的示例策略。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;Statement&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;Sid&quot;: &quot;Stmt1358974336152&quot;,</span><br><span class="line">      &quot;Action&quot;: [</span><br><span class="line">        &quot;ec2:DescribeAddresses&quot;,</span><br><span class="line">        &quot;ec2:AssociateAddress&quot;,</span><br><span class="line">        &quot;ec2:DisassociateAddress&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;Effect&quot;: &quot;Allow&quot;,</span><br><span class="line">      &quot;Resource&quot;: &quot;*&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;Sid&quot;: &quot;Stmt1358974395291&quot;,</span><br><span class="line">      &quot;Action&quot;: [</span><br><span class="line">        &quot;autoscaling:DescribeAutoScalingGroups&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;Effect&quot;: &quot;Allow&quot;,</span><br><span class="line">      &quot;Resource&quot;: &quot;*&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Understanding-Eureka-Client-Server-Communication"><a href="#Understanding-Eureka-Client-Server-Communication" class="headerlink" title="Understanding Eureka Client-Server Communication"></a>Understanding Eureka Client-Server Communication</h3><hr>
+<p>希望现在您已经访问了<a href="#Configuring-Eureka">这个页面</a>，了解了如何设置Eureka服务端。</p>
+<p>与Eureka服务端交互的第一步是初始化Eureka客户端。如果您正在AWS云中运行，您可以按以下方式初始化:</p>
+<p>从1.1.153版开始，引入了EurekaModule类，允许将eureka-client与governator/guice一起使用。请看这个<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-examples/src/main/java/com/netflix/eureka/ExampleEurekaGovernatedService.java">governated example</a>受治理的例子。</p>
+<p>预发布版本为1.1.153，您可以通过以下方式初始化Eureka客户端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DiscoveryManager.getInstance().initComponent(</span><br><span class="line">              new CloudInstanceConfig(),</span><br><span class="line">              new DefaultEurekaClientConfig());</span><br></pre></td></tr></table></figure>
+
+<p>如果在其他数据中心运行，则按照以下方式进行初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DiscoveryManager.getInstance().initComponent(</span><br><span class="line">                new MyDataCenterInstanceConfig(),</span><br><span class="line">                new DefaultEurekaClientConfig());</span><br></pre></td></tr></table></figure>
+
+<p>Eureka客户端则会寻找eureka-client.properties文件，像<a href="#Configuring-Eureka">这里</a>描述的。</p>
+<h4 id="关于实例的状态"><a href="#关于实例的状态" class="headerlink" title="关于实例的状态"></a>关于实例的状态</h4><p>默认情况下，Eureka客户端在启动状态下启动，这给了实例一个机会在它可以服务流量之前进行特定于应用程序的初始化。</p>
+<p>然后，应用程序可以通过将实例状态变为UP来显式地放置流量的实例。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP)</span><br></pre></td></tr></table></figure>
+
+<p>应用程序还可以注册健康检查回调，这可以选择性地将实例状态更改为DOWN。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP)</span><br></pre></td></tr></table></figure>
+
+<p>应用程序还可以注册健康检查<a target="_blank" rel="noopener" href="http://netflix.github.com/eureka/javadoc/eureka-client/index.html">回调</a>，这可以选择性地将实例状态更改为DOWN。</p>
+<p>在Netflix，我们也使用<code>OUT_OF_SERVICE</code>退出服务状态，主要是为了从流量中提取一个实例。它用于在出现问题时方便地回滚新修订的部署。<br>大多数应用程序会为新的版本创建新的ASG，流量会被路由到新的ASG。<br>在出现问题的情况下，回滚修订只是通过将ASG中的所有实例设置为<code>OUT_OF_SERVICE</code>来关闭流量的问题。</p>
+<h4 id="Eureka客户端操作"><a href="#Eureka客户端操作" class="headerlink" title="Eureka客户端操作"></a>Eureka客户端操作</h4><p>Eureka客户端首先尝试与 AWS 云中同一区域的尤里卡服务器进行所有操作，如果找不到服务器，就会切换到其他区域。</p>
+<p>应用程序客户端可以通过使用 Eureka 客户机返回的信息来实现负载平衡。<br>下面是示例应用程序的示例，它使用 Eureka 客户端返回的信息来平衡客户机的负载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">InstanceInfo nextServerInfo &#x3D; DiscoveryManager.getInstance()</span><br><span class="line">  .getDiscoveryClient()</span><br><span class="line">  .getNextServerFromEureka(vipAddress, false);</span><br><span class="line"></span><br><span class="line">Socket s &#x3D; new Socket();</span><br><span class="line">int serverPort &#x3D; nextServerInfo.getPort();</span><br><span class="line">try &#123;</span><br><span class="line">  s.connect(new InetSocketAddress(nextServerInfo.getHostName(),</span><br><span class="line">        serverPort));</span><br><span class="line">&#125; catch (IOException e) &#123;</span><br><span class="line">  System.err.println(&quot;Could not connect to the server :&quot;</span><br><span class="line">      + nextServerInfo.getHostName() + &quot; at port &quot; + serverPort);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果基本的循环负载平衡不足以满足您的需求，那么您可以在这里提供的 API/操作之上包装一个负载平衡器。<br>在 AWS 云中，请确保重试失败，并将超时时间保持在较低水平，因为可能会出现这样的情况: Eureka服务端可能返回在中断情况下不再存在的实例。</p>
+<p>需要注意的是，Eureka 客户端清理为服务器通信而创建的空闲超过30秒的 HTTP 连接。<br>这是因为 AWS 防火墙限制不允许通信在空闲几分钟后通过连接。</p>
+<p>Eureka 客户端通过以下方式与服务器交互。</p>
+<h4 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h4><p>Eureka 客户端向 Eureka 服务器注册有关运行实例的信息。<br>在 AWS 云中，关于实例的信息可以通过访问 URL/ <a target="_blank" rel="noopener" href="http://169.254.169.254/latest/metadata">http://169.254.169.254/latest/metadata</a> 来获得。<br>注册发生在第一次心跳时(30秒后)。</p>
+<h4 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h4><p>Eureka客户需要通过每30秒发送一次心跳来延长租约。更新通知 Eureka 服务器实例仍然活着。<br>如果服务器90秒内没有看到更新，那么它会将实例从注册表中删除。<br>建议不要更改更新间隔，因为服务器使用这些信息来确定客户端到服务器的通信是否存在广泛的问题。</p>
+<h4 id="获取注册表"><a href="#获取注册表" class="headerlink" title="获取注册表"></a>获取注册表</h4><p>Eureka 客户端从服务器获取注册表信息并在本地缓存它。之后，客户端使用这些信息来寻找其他服务。<br>通过获取最后一次提取周期和当前一次提取周期之间的增量更新，定期(每30秒)更新此信息。<br>增量信息在服务器中保存的时间更长(大约3分钟) ，因此增量取出可能会再次返回相同的实例。<br>Eureka 客户端自动处理重复的信息。</p>
+<p>获得 deltas 之后，Eureka 客户端通过比较服务器返回的实例计数，将信息与服务器进行协调， 如果由于某种原因信息不匹配，则再次获取整个注册表信息。<br>Eureka服务端缓存 deltas 的压缩有效负载、整个注册表以及每个应用程序的压缩有效负载以及相同的未压缩信息。<br>有效负载还支持 JSON/XML 格式。Eureka 客户端使用 jersey apache 客户机获取压缩 JSON 格式的信息。</p>
+<h4 id="取消"><a href="#取消" class="headerlink" title="取消"></a>取消</h4><p>Eureka客户端在关闭时向尤里卡服务器发送一个取消请求。这将从服务器的实例注册表中删除实例，从而有效地将实例从流量中删除。</p>
+<p>这是在 Eureka 客户端关闭时完成的，应用程序应该确保在关闭期间调用以下命令。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DiscoveryManager.getInstance().shutdownComponent()</span><br></pre></td></tr></table></figure>
+<h4 id="时间延迟"><a href="#时间延迟" class="headerlink" title="时间延迟"></a>时间延迟</h4><p>所有来自 Eureka 客户端的操作可能需要一些时间来反映在 Eureka 服务器中，并随后反映在其他 Eureka 客户端中。<br>这是因为有效负载缓存在 eureka 服务器上，该服务器会定期刷新以反映新的信息。 Eureka的客户端也会定期获取 deltas。<br>因此，将更改传播到所有 Eureka 客户端可能需要2分钟。</p>
+<h4 id="沟通机制"><a href="#沟通机制" class="headerlink" title="沟通机制"></a>沟通机制</h4><p>默认情况下，Eureka 客户端使用 <a target="_blank" rel="noopener" href="http://jersey.java.net/">Jersey</a> 和 Jackson 以及 JSON 有效负载与 Eureka 服务器进行通信。<br>您总是可以通过<a target="_blank" rel="noopener" href="http://netflix.github.com/eureka/javadoc/eureka-client/index.html">覆盖</a>默认机制来使用自己选择的机制。<br>注意，<a target="_blank" rel="noopener" href="http://xstream.codehaus.org/">XStream</a>也是一些遗留用例的依赖关系图的一部分。</p>
+<hr>
+<h3 id="Server-Self-Preservation-Mode"><a href="#Server-Self-Preservation-Mode" class="headerlink" title="Server Self Preservation Mode"></a>Server Self Preservation Mode</h3><hr>
+<h4 id="自我保护模式"><a href="#自我保护模式" class="headerlink" title="自我保护模式"></a>自我保护模式</h4><p>如果Eureka服务端发现有大量注册用户以一种不体面的方式终止了他们的连接，并且同时等待被驱逐，那么他们将进入自我保护模式。<br>这样做是为了确保灾难性网络事件不会擦除 eureka 注册数据，并将其传播到所有客户端。</p>
+<p>为了更好地理解自我保护，它首先帮助我们理解尤里卡客户如何结束他们的注册生命周期。<br>尤里卡协议要求客户执行一个明确的取消注册行动时，他们是永久离开。<br>例如，在提供的 java 客户端中，这是在 shutdown()方法中完成的。任何连续3次心跳续订失败的客户，<br>将被视为不干净的终止，并将通过背景驱逐程序被驱逐出去。<br>只有当大于15% 的当前注册表处于这种后期状态时，自我保护才会启动。</p>
+<p>当处于自我保护模式时，Eureka服务端将停止驱逐所有实例，直到:</p>
+<ol>
+<li>它看到的心跳续订次数已经回到预期阈值之上，或者</li>
+<li>自我保护功能丧失(见下文)</li>
+</ol>
+<p>自我保存是默认启用的，启用自我保存的默认阈值大于当前注册表大小的15% 。</p>
+<h4 id="如何配置自我保护阈值"><a href="#如何配置自我保护阈值" class="headerlink" title="如何配置自我保护阈值"></a>如何配置自我保护阈值</h4><p>这里定义了自我保护配置，要更改示例中的自我保护阈值，请设置以下属性: <code>eureka.renewwalpercentthreshold=[0.0,1.0]</code>。</p>
+<h4 id="如何禁用自我保护"><a href="#如何禁用自我保护" class="headerlink" title="如何禁用自我保护"></a>如何禁用自我保护</h4><p>这里定义了自我保护配置，要在示例中禁用自我保护，请设置以下属性: <code>eureka.enableSelfPreservation=false</code>。</p>
+<p>在生产环境中，如果由于某种原因，你的服务器进入了自我保护模式，你可以通过暂时禁用配置自我保护来迫使服务器脱离自我保护模式。<br>我们希望在这种情况下，人工操作能够评估情况并采取适当的行动。</p>
+<hr>
+<h3 id="Eureka-REST-operations"><a href="#Eureka-REST-operations" class="headerlink" title="Eureka REST operations"></a>Eureka REST operations</h3><hr>
+<p>以下是非 java 应用程序可以使用 Eureka 的 REST 操作。</p>
+<p>appID 是应用程序的名称，instanceID 是与实例关联的唯一 id。<br>在 AWS 云中，instanceID 是实例的实例 id，在其他数据中心中，它是实例的主机名。</p>
+<p>对于 JSON/XML，提供的内容类型必须是 application/XML 或 application/JSON。</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>http动作</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Register new application instance</td>
+<td>POST /eureka/v2/apps/appID</td>
+<td>Input: JSON/XML payload HTTP Code: 204 on success</td>
+</tr>
+<tr>
+<td>De-register application instance</td>
+<td>DELETE /eureka/v2/apps/appID/instanceID</td>
+<td>HTTP Code: 200 on success</td>
+</tr>
+<tr>
+<td>Send application instance heartbeat</td>
+<td>PUT /eureka/v2/apps/appID/instanceID</td>
+<td>HTTP Code: 200 on success 404 if instanceID doesn’t exist</td>
+</tr>
+<tr>
+<td>Query for all instances</td>
+<td>GET /eureka/v2/apps</td>
+<td>HTTP Code: 200 on success Output: JSON/XML</td>
+</tr>
+<tr>
+<td>Query for all appID instances</td>
+<td>GET /eureka/v2/apps/appID</td>
+<td>HTTP Code: 200 on success Output: JSON/XML</td>
+</tr>
+<tr>
+<td>Query for a specific appID/instanceID</td>
+<td>GET /eureka/v2/apps/appID/instanceID</td>
+<td>HTTP Code: 200 on success Output: JSON/XML</td>
+</tr>
+<tr>
+<td>Query for a specific instanceID</td>
+<td>GET /eureka/v2/instances/instanceID</td>
+<td>HTTP Code: 200 on success Output: JSON/XML</td>
+</tr>
+<tr>
+<td>Take instance out of service</td>
+<td>PUT /eureka/v2/apps/appID/instanceID/status?value=OUT_OF_SERVICE</td>
+<td>HTTP Code: 200 on success 500 on failure</td>
+</tr>
+<tr>
+<td>Move instance back into service (remove override)</td>
+<td>DELETE /eureka/v2/apps/appID/instanceID/status?value=UP</td>
+<td>HTTP Code: 200 on success 500 on failure</td>
+</tr>
+<tr>
+<td>Update metadata</td>
+<td>PUT /eureka/v2/apps/appID/instanceID/metadata?key=value</td>
+<td>HTTP Code: 200 on success 500 on failure</td>
+</tr>
+<tr>
+<td>Query for all instances under a particular vip address</td>
+<td>GET /eureka/v2/vips/vipAddress</td>
+<td>HTTP Code: 200 on success Output: JSON/XML 404 if the vipAddress does not exist.</td>
+</tr>
+<tr>
+<td>Query for all instances under a particular secure vip address</td>
+<td>GET /eureka/v2/svips/svipAddress</td>
+<td>HTTP Code: 200 on success Output: JSON/XML 404 if the svipAddress does not exist.</td>
+</tr>
+</tbody></table>
+<h4 id="注册-1"><a href="#注册-1" class="headerlink" title="注册"></a>注册</h4><p>注册时，需要发布一个符合这个XSD的XML(或JSON)主体</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">xsd:schema</span> <span class="attr">xmlns:xsd</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema&quot;</span> <span class="attr">elementFormDefault</span>=<span class="string">&quot;qualified&quot;</span> <span class="attr">attributeFormDefault</span>=<span class="string">&quot;unqualified&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;instance&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- hostName in ec2 should be the public dns name, within ec2 public dns name will</span></span><br><span class="line"><span class="comment">                     always resolve to its private IP --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;hostName&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;app&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;ipAddr&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;vipAddress&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;secureVipAddress&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;status&quot;</span> <span class="attr">type</span>=<span class="string">&quot;statusType&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;port&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:positiveInteger&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;securePort&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:positiveInteger&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;homePageUrl&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;statusPageUrl&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;healthCheckUrl&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">ref</span>=<span class="string">&quot;dataCenterInfo&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;1&quot;</span> <span class="attr">maxOccurs</span>=<span class="string">&quot;1&quot;</span> /&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- optional --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">ref</span>=<span class="string">&quot;leaseInfo&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span>/&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- optional app specific metadata --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;metadata&quot;</span> <span class="attr">type</span>=<span class="string">&quot;appMetadataType&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:element</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;dataCenterInfo&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;name&quot;</span> <span class="attr">type</span>=<span class="string">&quot;dcNameType&quot;</span> /&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- metadata is only required if name is Amazon --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;metadata&quot;</span> <span class="attr">type</span>=<span class="string">&quot;amazonMetdataType&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span>/&gt;</span></span><br><span class="line">             <span class="tag">&lt;/<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:element</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;leaseInfo&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- (optional) if you want to change the length of lease - default if 90 secs --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;evictionDurationInSecs&quot;</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span>  <span class="attr">type</span>=<span class="string">&quot;xsd:positiveInteger&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:element</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:simpleType</span> <span class="attr">name</span>=<span class="string">&quot;dcNameType&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Restricting the values to a set of value using &#x27;enumeration&#x27; --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:restriction</span> <span class="attr">base</span> = <span class="string">&quot;xsd:string&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;MyOwn&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;Amazon&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:restriction</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:simpleType</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:simpleType</span> <span class="attr">name</span>=<span class="string">&quot;statusType&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Restricting the values to a set of value using &#x27;enumeration&#x27; --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:restriction</span> <span class="attr">base</span> = <span class="string">&quot;xsd:string&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;UP&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;DOWN&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;STARTING&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;OUT_OF_SERVICE&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:enumeration</span> <span class="attr">value</span> = <span class="string">&quot;UNKNOWN&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:restriction</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:simpleType</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:complexType</span> <span class="attr">name</span>=<span class="string">&quot;amazonMetdataType&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- From &lt;a class=&quot;jive-link-external-small&quot; href=&quot;http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?AESDG-chapter-instancedata.html&quot; target=&quot;_blank&quot;&gt;http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?AESDG-chapter-instancedata.html&lt;/a&gt; --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;ami-launch-index&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;local-hostname&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;availability-zone&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;instance-id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;public-ipv4&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;public-hostname&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;ami-manifest-path&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;local-ipv4&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;hostname&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span>/&gt;</span>       </span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;ami-id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">&quot;instance-type&quot;</span> <span class="attr">type</span>=<span class="string">&quot;xsd:string&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:all</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:complexType</span> <span class="attr">name</span>=<span class="string">&quot;appMetadataType&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:sequence</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- this is optional application specific name, value metadata --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:any</span> <span class="attr">minOccurs</span>=<span class="string">&quot;0&quot;</span> <span class="attr">maxOccurs</span>=<span class="string">&quot;unbounded&quot;</span> <span class="attr">processContents</span>=<span class="string">&quot;skip&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:sequence</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">xsd:schema</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="更新-1"><a href="#更新-1" class="headerlink" title="更新"></a>更新</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Example : PUT &#x2F;eureka&#x2F;v2&#x2F;apps&#x2F;MYAPP&#x2F;i-6589ef6</span><br><span class="line"></span><br><span class="line">Response:</span><br><span class="line">Status: 200 (on success)</span><br><span class="line">404 (eureka doesn’t know about you, Register yourself first)</span><br><span class="line">500 (failure)</span><br></pre></td></tr></table></figure>
+
+<h4 id="取消-1"><a href="#取消-1" class="headerlink" title="取消"></a>取消</h4><p>(如果Eureka在evictiondurationsens事件内没有从服务节点获得心跳，那么该节点将自动注销)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Example : DELETE &#x2F;eureka&#x2F;v2&#x2F;apps&#x2F;MYAPP&#x2F;i-6589ef6</span><br><span class="line"></span><br><span class="line">Response:</span><br><span class="line">Status: 200 (on success)</span><br><span class="line">500 (failure)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Understanding-Eureka-Peer-to-Peer-communication"><a href="#Understanding-Eureka-Peer-to-Peer-communication" class="headerlink" title="Understanding Eureka Peer to Peer communication"></a>Understanding Eureka Peer to Peer communication</h3><hr>
+<p>确保您访问过<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/wiki/Configuring-Eureka-in-AWS-Cloud">此页面</a>以了解Eureka集群的配置。</p>
+<p>Eureka客户端尝试与同一区域的Eureka服务端通话。如果与服务器通信时出现问题，或者服务器不在同一区域中，则客户端将故障转移到其他区域中的服务器。</p>
+<p>一旦服务器开始接收流量，在服务器上执行的所有<a href="#Understanding-Eureka-Client-Server-Communication">操作</a>都将复制到服务器知道的所有对等节点。<br>如果某个操作由于某种原因而失败，则在下一个心跳信息上调节该信息，该心跳信息也将在服务器之间复制。</p>
+<p>当 Eureka 服务器出现时，它尝试从邻近节点获取所有实例注册表信息。 如果从一个节点获取信息有问题，服务器在放弃之前尝试所有对等节点。<br>如果服务器能够成功地获得所有实例，它将基于该信息设置应该接收的更新阈值。<br>如果任何时候，更新低于为该值配置的百分比(15分钟内低于85%) ，服务器将停止到期实例以保护当前实例注册表信息。</p>
+<p>在 Netflix 中，上述安全措施被称为自我保存模式，主要用于在一组客户端和 Eureka 服务器之间存在网络分区的情况下提供保护。<br>在这些场景中，服务器试图保护它已经拥有的信息。在发生大规模停机的情况下，可能会出现这样的情况，即客户端可能会获得不再存在的实例。<br>客户端必须确保它们对返回一个不存在或者没有响应的实例的 eureka 服务器具有弹性。<br>在这些场景中最好的保护是快速超时并尝试其他服务器。</p>
+<p>在这种情况下，如果服务器无法从相邻节点获取注册表信息，它将等待几分钟(5分钟) ，以便客户端能够注册它们的信息。<br>服务器努力不向那里的客户端提供部分信息，因为它只向一组实例倾斜通信量，从而导致容量问题。</p>
+<p>Eureka 服务器使用 Eureka 客户端和服务器之间使用的相同机制彼此通信，如<a href="#Understanding-Eureka-Client-Server-Communication">本文</a>所述。</p>
+<p>另外值得注意的是，有几种<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-core/src/main/java/com/netflix/eureka/EurekaServerConfig.java">配置</a>可以在服务器上进行调优，包括在需要时在服务器之间进行通信。</p>
+<h4 id="在对等点之间的网络中断期间会发生什么？"><a href="#在对等点之间的网络中断期间会发生什么？" class="headerlink" title="在对等点之间的网络中断期间会发生什么？"></a>在对等点之间的网络中断期间会发生什么？</h4><p>在对等点之间的网络中断的情况下，可能会发生以下情况</p>
+<ul>
+<li>对等点之间的心跳复制可能会失败，服务器检测到这种情况并进入自我保存模式来保护当前状态</li>
+<li>注册可能发生在孤立的服务器中，一些客户端可能反映新的注册，而其他客户端可能没有</li>
+<li>在网络连接恢复到稳定状态后，情况会自动纠正。当对等点能够很好地进行通信时，注册信息将自动传输到没有注册信息的服务器</li>
+</ul>
+<p>底线是，在网络中断期间，服务器尽可能地保持弹性，但是在这段时间内，客户端可能对服务器有不同的看法。</p>
+<hr>
+<h3 id="Overriding-Default-Configurations"><a href="#Overriding-Default-Configurations" class="headerlink" title="Overriding Default Configurations"></a>Overriding Default Configurations</h3><hr>
+<p>Eureka提供了内置的默认设置，适用于大多数场景。如果您想要覆盖缺省配置，您可能需要查看三种类型的配置。</p>
+<p>您可以通过使用任何机制来扩展以下默认配置类，以提供您自己的配置值。</p>
+<p><strong>重要提示:请不要使用这些接口，它们只是用于文档的目的，将来可能会更改。</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/CloudInstanceConfig.java">云</a>或<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/MyDataCenterInstanceConfig.java">数据中心</a>实例配置，两者都扩展了<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/PropertiesInstanceConfig.java">PropertiesInstanceConfig</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/discovery/DefaultEurekaClientConfig.java">Eureka客户端</a>配置</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-core/src/main/java/com/netflix/eureka/DefaultEurekaServerConfig.java">Eureka服务端</a>配置</li>
+</ul>
+<p>注意，上面的内容还可以作为Eureka提供的所有上述配置的默认配置值的文档。</p>
+<h4 id="向注册信息添加自定义元数据"><a href="#向注册信息添加自定义元数据" class="headerlink" title="向注册信息添加自定义元数据"></a>向注册信息添加自定义元数据</h4><p>有时，您可能希望添加特定于部署环境的自定义元数据，以便进行注册和查询。<br>例如，您可能希望传播一个自定义环境id，该id应可用于您的特定部署env。Eureka提供了在标准注册数据之外添加自定义元数据作为键:值对的能力。<br>有两种方法可以做到这一点:</p>
+<h5 id="访问元数据"><a href="#访问元数据" class="headerlink" title="访问元数据"></a>访问元数据</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String myValue &#x3D; instanceInfo.getMetadata().get(&quot;myKey&quot;);</span><br></pre></td></tr></table></figure>
+
+<h5 id="通过配置静态设置"><a href="#通过配置静态设置" class="headerlink" title="通过配置静态设置"></a>通过配置静态设置</h5><p>eureka.metadata.mykey=myvalue的任何配置会将k:v键值对mykey:myvalue添加到eureka的元数据映射中。</p>
+<h5 id="通过代码动态设置"><a href="#通过代码动态设置" class="headerlink" title="通过代码动态设置"></a>通过代码动态设置</h5><p>要动态地做到这一点，您首先需要提供您自己的<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/EurekaInstanceConfig.java">EurekaInstanceConfig</a>接口的自定义实现。<br>然后可以重载公共Map&lt;String, String&gt; getMetadataMap()方法，以返回包含所需元数据值的元数据映射。<br>请参阅<a target="_blank" rel="noopener" href="https://github.com/Netflix/eureka/blob/master/eureka-client/src/main/java/com/netflix/appinfo/PropertiesInstanceConfig.java">PropertiesInstanceConfig</a>以获得一个示例实现，它提供了基于上面系统的配置。</p>
+<hr>
+<h3 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h3><hr>
+<h4 id="对等点之间的网络中断时会发生什么？"><a href="#对等点之间的网络中断时会发生什么？" class="headerlink" title="对等点之间的网络中断时会发生什么？"></a>对等点之间的网络中断时会发生什么？</h4><p>在对等端点的网络中断的情况下，可能会发生以下情况。</p>
+<ul>
+<li>对等端点之间的心跳复制可能失败，服务器检测到这种情况，进入自我保护模式，保护当前状态。</li>
+<li>注册可能发生在孤立的服务器中，一些客户端可能会反映新的注册，而其他客户端可能不会。</li>
+</ul>
+<p>这种情况在网络连接恢复到稳定状态后自动纠正。当对等体能够正常通信时，注册信息自动传输到没有注册信息的服务器。<br>底线是，在网络中断期间，服务器尽量保持弹性，但在此期间客户端可能对服务器有不同的视图。</p>
+<h4 id="为什么不使用HA代理进行负载均衡呢？"><a href="#为什么不使用HA代理进行负载均衡呢？" class="headerlink" title="为什么不使用HA代理进行负载均衡呢？"></a>为什么不使用HA代理进行负载均衡呢？</h4><p>在AWS cloud中，由于其固有的原因，实例进出流量。<br>asg可以根据流量扩展或销毁实例。<br>无论我们是否使用HAProxy，挑战在于处理这种动态特性。<br>即使当你使用HAProxy时，也需要对它进行教育，了解进来和出去的实例，这正是Eureka所做的。</p>
+<p>我可以考虑在中间层使用代理的原因之一是当您需要固定会话时。如果这是一个要求，HAProxy可以补充Eureka。<br>但是，由于在我们的场景中，大多数中间层服务都是非粘性的，所以我们没有理由通过代理来避免网络跳转。<br>这样做的另一个积极的副作用是，它使我们的客户端在Eureka服务端宕机时具有相当大的弹性，因为客户端拥有与需要与之通信的服务联系的所有信息。<br>通过HA代理有一个缺点，即您无法对代理中断进行弹性处理。</p>
+<h4 id="为什么不使用-Curator-Zookeeper-作为服务注册中心？"><a href="#为什么不使用-Curator-Zookeeper-作为服务注册中心？" class="headerlink" title="为什么不使用 Curator/Zookeeper 作为服务注册中心？"></a>为什么不使用 Curator/Zookeeper 作为服务注册中心？</h4><p>Zookeeper和Eureka在某些方面有一些相同之处，特别是在复制注册表信息方面。<br>Eureka可以使用zookeeper缓存注册表信息并复制相同的注册表信息，但复制只是Eureka提供的功能的一小部分。</p>
+<p>除了复制之外，Eureka还处理各种其他事情:</p>
+<ul>
+<li>处理注册、续订、到期和取消的REST端点。</li>
+<li>保持实例信息的最新，以灵活的方式处理错综复杂的EIP绑定、部署回滚和自动伸缩。</li>
+<li>对客户端和服务器之间以及对等体之间的网络中断具有弹性。</li>
+</ul>
+<p>Zookeeper的力量在领袖选举、有序更新、分布式同步以及一致性保证(quorum)方面表现得尤为突出。</p>
+<p>除了复制注册表外，以上所有方法都不适用于Eureka，我们必须处理以下复杂问题:</p>
+<ul>
+<li>你现在必须找到一种方法，将EIPs分配给zookeeper，类似于Eureka。</li>
+<li>当zookeeper出现故障时，处理故障。</li>
+</ul>
+<p>而且，Eureka是精心构建的，没有任何外部组件的硬依赖。</p>
+<ul>
+<li>大多数服务都依赖于Eureka来引导自己。</li>
+<li>减少复杂性。</li>
+<li>避免另一个失败点。</li>
+</ul>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="https://reminance.github.io">Reminance</a>
+            <p>原文链接：<a href="https://reminance.github.io/2021/03/02/20210302-01/">https://reminance.github.io/2021/03/02/20210302-01/</a>
+            <p>发表日期：<a href="https://reminance.github.io/2021/03/02/20210302-01/">March 2nd 2021, 4:00:02 pm</a>
+            <p>更新日期：<a href="https://reminance.github.io/2021/03/02/20210302-01/">March 2nd 2021, 5:22:30 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2020/12/23/20201223-01/" title= "sentinel 简单使用">
+                    <div class="prevTitle">sentinel 简单使用</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- gitalk评论 -->
+
+    <!-- utteranc评论 -->
+
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:872666026@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Reminance" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <!-- <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span> -->
+        <span id="hexo-power">Powered by <a href="https://github.com/Reminance" target="_blank">Reminance</a></span><span class="iconfont-archer power">&#xe635;</span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+     <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+    <div style="width:300px;margin:0 auto; padding:20px 0;">
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102002607" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤ICP备19070816号</p></a>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102002607" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/avatar/beian.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤公网安备 44011102002607号</p></a>
+    </div>
+</footer>
+
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Eureka-note"><span class="toc-number">1.</span> <span class="toc-text">Eureka note</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#github"><span class="toc-number">1.1.</span> <span class="toc-text">github</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.2.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Building"><span class="toc-number">1.3.</span> <span class="toc-text">Building</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Eureka-1-0"><span class="toc-number">1.4.</span> <span class="toc-text"> Eureka 1.0 </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Eureka-2-0-%E5%B7%B2%E5%81%9C%E6%AD%A2"><span class="toc-number">1.5.</span> <span class="toc-text">Eureka 2.0(已停止)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Eureka-1-0-WIKI"><span class="toc-number">1.6.</span> <span class="toc-text">Eureka 1.0 WIKI</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Eureka-at-a-glance"><span class="toc-number">1.6.1.</span> <span class="toc-text">Eureka at a glance</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">Eureka是什么?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">Eureka有什么作用?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E5%92%8CAWS-ELB-%E6%9C%89%E4%BB%80%E4%B9%88%E4%B8%8D%E5%90%8C"><span class="toc-number">1.6.1.3.</span> <span class="toc-text">Eureka和AWS ELB 有什么不同?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E5%92%8CRoute-53-%E6%9C%89%E4%BB%80%E4%B9%88%E4%B8%8D%E5%90%8C"><span class="toc-number">1.6.1.4.</span> <span class="toc-text">Eureka和Route 53 有什么不同?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E5%9C%A8Netflix%E6%98%AF%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E7%9A%84"><span class="toc-number">1.6.1.5.</span> <span class="toc-text">Eureka在Netflix是如何使用的?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%AF%A5%E4%BD%BF%E7%94%A8Eureka"><span class="toc-number">1.6.1.6.</span> <span class="toc-text">什么时候该使用Eureka?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%92%8C%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AE%A9%E5%A6%82%E4%BD%95%E9%80%9A%E4%BF%A1"><span class="toc-number">1.6.1.7.</span> <span class="toc-text">应用程序客户端和应用程序服务端让如何通信?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AB%98%E5%B1%82%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="toc-number">1.6.1.8.</span> <span class="toc-text">高层体系结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9Ejava%E6%9C%8D%E5%8A%A1%E5%92%8C%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.6.1.9.</span> <span class="toc-text">非java服务和客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E9%85%8D%E7%BD%AE%E8%83%BD%E5%8A%9B"><span class="toc-number">1.6.1.10.</span> <span class="toc-text">可配置能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%B9%E6%80%A7%E8%83%BD%E5%8A%9B"><span class="toc-number">1.6.1.11.</span> <span class="toc-text">弹性能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E8%83%BD%E5%8A%9B"><span class="toc-number">1.6.1.12.</span> <span class="toc-text">监控能力</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Configuring-Eureka"><span class="toc-number">1.6.2.</span> <span class="toc-text">Configuring Eureka</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEEureka%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">配置Eureka客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%88%E5%86%B3%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.6.2.1.1.</span> <span class="toc-text">先决条件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.2.1.2.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEEureka%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">1.6.2.2.</span> <span class="toc-text">配置Eureka服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%88%E5%86%B3%E6%9D%A1%E4%BB%B6-1"><span class="toc-number">1.6.2.2.1.</span> <span class="toc-text">先决条件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-1"><span class="toc-number">1.6.2.2.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BA%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91%E8%BF%9B%E8%A1%8C%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.2.2.3.</span> <span class="toc-text">为本地开发进行配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#AWS%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.2.2.4.</span> <span class="toc-text">AWS的配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%89%88%E6%9C%AC%E7%9A%84%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="toc-number">1.6.2.2.5.</span> <span class="toc-text">客户端&#x2F;服务端版本的兼容性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Building-Eureka-Client-and-Server"><span class="toc-number">1.6.3.</span> <span class="toc-text">Building Eureka Client and Server</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">前置条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.6.3.2.</span> <span class="toc-text">构建步骤</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Running-the-Demo-Application"><span class="toc-number">1.6.4.</span> <span class="toc-text">Running the Demo Application</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EDemo"><span class="toc-number">1.6.4.1.</span> <span class="toc-text">关于Demo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EDemo%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9A%84%E5%A3%B0%E6%98%8E"><span class="toc-number">1.6.4.2.</span> <span class="toc-text">关于Demo服务端的声明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.4.3.</span> <span class="toc-text">Eureka服务端配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%9C%8D%E5%8A%A1%E7%9A%84Eureka%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.4.4.</span> <span class="toc-text">应用程序服务的Eureka客户端配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84Eureka%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.4.5.</span> <span class="toc-text">应用程序客户端的Eureka客户端配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8CDemo"><span class="toc-number">1.6.4.6.</span> <span class="toc-text">运行Demo</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deploying-Eureka-Servers-in-EC2"><span class="toc-number">1.6.5.</span> <span class="toc-text">Deploying-Eureka-Servers-in-EC2</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AB%AF%E7%82%B9%E9%85%8D%E7%BD%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">1.6.5.1.</span> <span class="toc-text">端点配置概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AWS%E9%85%8D%E7%BD%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">1.6.5.2.</span> <span class="toc-text">AWS配置概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8property%E5%B1%9E%E6%80%A7%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AEEIPs"><span class="toc-number">1.6.5.3.</span> <span class="toc-text">使用property属性文件配置EIPs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E8%BF%87DNS%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AEEIPs"><span class="toc-number">1.6.5.4.</span> <span class="toc-text">通过DNS方式配置EIPs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%9C%8D%E5%8A%A1urls%E5%88%86%E9%85%8DEIPs"><span class="toc-number">1.6.5.5.</span> <span class="toc-text">使用服务urls分配EIPs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.6.5.6.</span> <span class="toc-text">Eureka故障转移</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E7%9A%84AWS%E7%89%B9%E6%AE%8Aproperties%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE"><span class="toc-number">1.6.5.7.</span> <span class="toc-text">Eureka的AWS特殊properties属性配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AWS%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5"><span class="toc-number">1.6.5.8.</span> <span class="toc-text">AWS访问策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Understanding-Eureka-Client-Server-Communication"><span class="toc-number">1.6.6.</span> <span class="toc-text">Understanding Eureka Client-Server Communication</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">1.6.6.1.</span> <span class="toc-text">关于实例的状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Eureka%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%93%8D%E4%BD%9C"><span class="toc-number">1.6.6.2.</span> <span class="toc-text">Eureka客户端操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C"><span class="toc-number">1.6.6.3.</span> <span class="toc-text">注册</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0"><span class="toc-number">1.6.6.4.</span> <span class="toc-text">更新</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%B3%A8%E5%86%8C%E8%A1%A8"><span class="toc-number">1.6.6.5.</span> <span class="toc-text">获取注册表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%96%E6%B6%88"><span class="toc-number">1.6.6.6.</span> <span class="toc-text">取消</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E5%BB%B6%E8%BF%9F"><span class="toc-number">1.6.6.7.</span> <span class="toc-text">时间延迟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B2%9F%E9%80%9A%E6%9C%BA%E5%88%B6"><span class="toc-number">1.6.6.8.</span> <span class="toc-text">沟通机制</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Server-Self-Preservation-Mode"><span class="toc-number">1.6.7.</span> <span class="toc-text">Server Self Preservation Mode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.6.7.1.</span> <span class="toc-text">自我保护模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E9%98%88%E5%80%BC"><span class="toc-number">1.6.7.2.</span> <span class="toc-text">如何配置自我保护阈值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A6%81%E7%94%A8%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4"><span class="toc-number">1.6.7.3.</span> <span class="toc-text">如何禁用自我保护</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Eureka-REST-operations"><span class="toc-number">1.6.8.</span> <span class="toc-text">Eureka REST operations</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C-1"><span class="toc-number">1.6.8.1.</span> <span class="toc-text">注册</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0-1"><span class="toc-number">1.6.8.2.</span> <span class="toc-text">更新</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%96%E6%B6%88-1"><span class="toc-number">1.6.8.3.</span> <span class="toc-text">取消</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Understanding-Eureka-Peer-to-Peer-communication"><span class="toc-number">1.6.9.</span> <span class="toc-text">Understanding Eureka Peer to Peer communication</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8%E5%AF%B9%E7%AD%89%E7%82%B9%E4%B9%8B%E9%97%B4%E7%9A%84%E7%BD%91%E7%BB%9C%E4%B8%AD%E6%96%AD%E6%9C%9F%E9%97%B4%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.6.9.1.</span> <span class="toc-text">在对等点之间的网络中断期间会发生什么？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Overriding-Default-Configurations"><span class="toc-number">1.6.10.</span> <span class="toc-text">Overriding Default Configurations</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%91%E6%B3%A8%E5%86%8C%E4%BF%A1%E6%81%AF%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89%E5%85%83%E6%95%B0%E6%8D%AE"><span class="toc-number">1.6.10.1.</span> <span class="toc-text">向注册信息添加自定义元数据</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%85%83%E6%95%B0%E6%8D%AE"><span class="toc-number">1.6.10.1.1.</span> <span class="toc-text">访问元数据</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E9%85%8D%E7%BD%AE%E9%9D%99%E6%80%81%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.6.10.1.2.</span> <span class="toc-text">通过配置静态设置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%BB%A3%E7%A0%81%E5%8A%A8%E6%80%81%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.6.10.1.3.</span> <span class="toc-text">通过代码动态设置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ"><span class="toc-number">1.6.11.</span> <span class="toc-text">FAQ</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E7%AD%89%E7%82%B9%E4%B9%8B%E9%97%B4%E7%9A%84%E7%BD%91%E7%BB%9C%E4%B8%AD%E6%96%AD%E6%97%B6%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.6.11.1.</span> <span class="toc-text">对等点之间的网络中断时会发生什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%BD%BF%E7%94%A8HA%E4%BB%A3%E7%90%86%E8%BF%9B%E8%A1%8C%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%91%A2%EF%BC%9F"><span class="toc-number">1.6.11.2.</span> <span class="toc-text">为什么不使用HA代理进行负载均衡呢？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%BD%BF%E7%94%A8-Curator-Zookeeper-%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%EF%BC%9F"><span class="toc-number">1.6.11.3.</span> <span class="toc-text">为什么不使用 Curator&#x2F;Zookeeper 作为服务注册中心？</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2021 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span><a class="archive-post-title" href= "/2021/03/02/20210302-01/" >Eureka概述</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/23</span><a class="archive-post-title" href= "/2020/12/23/20201223-01/" >sentinel 简单使用</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/24</span><a class="archive-post-title" href= "/2019/10/24/20191024-01/" >Mysql数据库的高级应用(存储过程，触发器、索引，视图，函数）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span><a class="archive-post-title" href= "/2019/09/22/20190922-01/" >上传项目到中央仓库</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/20190911-01/" >SpringBoot配置https</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/07</span><a class="archive-post-title" href= "/2019/09/07/20190907-01/" >面向对象三大特征和五大原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/31</span><a class="archive-post-title" href= "/2019/08/31/20190831-01/" >使用fatedier/frp搭建内网穿透</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/24</span><a class="archive-post-title" href= "/2019/08/24/20190824-01/" >Explain详解与索引最佳实践</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/14</span><a class="archive-post-title" href= "/2019/08/14/20190814-01/" >刘瑜写给女儿的信：愿你慢慢长大[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span><a class="archive-post-title" href= "/2019/07/03/20190703-01/" >记Thymeleaf Nginx 配置动静分离</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/01</span><a class="archive-post-title" href= "/2019/07/01/20190701-01/" >日签(七月请对我好一点)-20190701</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2019/06/25/20190625-01/" >使用 Java8 Optional 的正确姿势[转]</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href= "/2019/04/14/20190401-01/" >Summary-201904</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="生活"><span class="iconfont-archer">&#xe606;</span>生活</span>
+    
+        <span class="sidebar-tag-name" data-tags="面试"><span class="iconfont-archer">&#xe606;</span>面试</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
+    
+        <span class="sidebar-tag-name" data-tags="工作"><span class="iconfont-archer">&#xe606;</span>工作</span>
+    
+        <span class="sidebar-tag-name" data-tags="SpringBoot"><span class="iconfont-archer">&#xe606;</span>SpringBoot</span>
+    
+        <span class="sidebar-tag-name" data-tags="日签"><span class="iconfont-archer">&#xe606;</span>日签</span>
+    
+        <span class="sidebar-tag-name" data-tags="redis"><span class="iconfont-archer">&#xe606;</span>redis</span>
+    
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
+        <span class="sidebar-tag-name" data-tags="JAVA"><span class="iconfont-archer">&#xe606;</span>JAVA</span>
+    
+        <span class="sidebar-tag-name" data-tags="HTTPS"><span class="iconfont-archer">&#xe606;</span>HTTPS</span>
+    
+        <span class="sidebar-tag-name" data-tags="网络工具"><span class="iconfont-archer">&#xe606;</span>网络工具</span>
+    
+        <span class="sidebar-tag-name" data-tags="内网穿透"><span class="iconfont-archer">&#xe606;</span>内网穿透</span>
+    
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
+    
+        <span class="sidebar-tag-name" data-tags="sentinel"><span class="iconfont-archer">&#xe606;</span>sentinel</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring cloud"><span class="iconfont-archer">&#xe606;</span>spring cloud</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="工作"><span class="iconfont-archer">&#xe60a;</span>工作</span>
+    
+        <span class="sidebar-category-name" data-categories="生活"><span class="iconfont-archer">&#xe60a;</span>生活</span>
+    
+        <span class="sidebar-category-name" data-categories="spring-cloud"><span class="iconfont-archer">&#xe60a;</span>spring-cloud</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Reminance"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
