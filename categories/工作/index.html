@@ -599,43 +599,6 @@ fatedier/frp搭建：linux服务端下载安装包:
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2019/07/12/20190712-02/" >
-            
-                <span>基于redis的延迟消息队列设计[转]</span>
-        </a>
-        <div class="abstract-content">
-            @TOC
-基于redis的延迟消息队列设计需求背景用户下订单成功之后隔20分钟给用户发送上门服务通知短信订单完成一个小时之后通知用户对上门服务进行评价业务执行失败之后隔10分钟重试一次
-类似的场景比较多 简单的处理方式就是使用定时任务 假如数据比较多的时候 有的数据可能延迟比较严重,而且越来越多的定时业务导致任务调度很繁琐不好管理。
-队列设计目前可以考虑使用rabbitmq来满足需求 但是不打算使用,因为目前太多的业务使用了另外的MQ中间件。
-开发前需要考虑的问题？及时性 消费端能按时收到同一时间消息的消费权重可靠性 消息不能出现没有被消费掉的情况可恢复 假如有其他情况 导致消息系统不可...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/07/12</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "java">java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "工作">工作</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "redis">redis</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
         <a class="abstract-title" href = "/2019/07/12/20190712-01/" >
             
                 <span>分布式唯一id：snowflake算法[转]</span>
@@ -661,6 +624,43 @@ fatedier/frp搭建：linux服务端下载安装包:
         <a class="post-tag" href="javascript:void(0);" data-tags = "工作">工作</a>
     
         <a class="post-tag" href="javascript:void(0);" data-tags = "算法">算法</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2019/07/12/20190712-02/" >
+            
+                <span>基于redis的延迟消息队列设计[转]</span>
+        </a>
+        <div class="abstract-content">
+            @TOC
+基于redis的延迟消息队列设计需求背景用户下订单成功之后隔20分钟给用户发送上门服务通知短信订单完成一个小时之后通知用户对上门服务进行评价业务执行失败之后隔10分钟重试一次
+类似的场景比较多 简单的处理方式就是使用定时任务 假如数据比较多的时候 有的数据可能延迟比较严重,而且越来越多的定时业务导致任务调度很繁琐不好管理。
+队列设计目前可以考虑使用rabbitmq来满足需求 但是不打算使用,因为目前太多的业务使用了另外的MQ中间件。
+开发前需要考虑的问题？及时性 消费端能按时收到同一时间消息的消费权重可靠性 消息不能出现没有被消费掉的情况可恢复 假如有其他情况 导致消息系统不可...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/07/12</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "java">java</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "工作">工作</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "redis">redis</a>
     
 </div>
             
@@ -973,10 +973,6 @@ fatedier/frp搭建：linux服务端下载安装包:
     
     
     
-    
-    
-    
-    
     <div class="total-and-search">
         <div class="total-archive">
         Total : 15
@@ -1058,12 +1054,12 @@ fatedier/frp搭建：linux服务端下载安装包:
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-01/" >分布式唯一id：snowflake算法[转]</a>
+            <span class="archive-post-date">07/12</span><a class="archive-post-title" href= "/2019/07/12/20190712-02/" >基于redis的延迟消息队列设计[转]</a>
         </li>
     
     
@@ -1105,19 +1101,19 @@ fatedier/frp搭建：linux服务端下载安装包:
     
         <span class="sidebar-tag-name" data-tags="SpringBoot"><span class="iconfont-archer">&#xe606;</span>SpringBoot</span>
     
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
         <span class="sidebar-tag-name" data-tags="redis"><span class="iconfont-archer">&#xe606;</span>redis</span>
     
-        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
     
         <span class="sidebar-tag-name" data-tags="网络工具"><span class="iconfont-archer">&#xe606;</span>网络工具</span>
     
         <span class="sidebar-tag-name" data-tags="内网穿透"><span class="iconfont-archer">&#xe606;</span>内网穿透</span>
     
         <span class="sidebar-tag-name" data-tags="JAVA"><span class="iconfont-archer">&#xe606;</span>JAVA</span>
-    
-        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
-    
-        <span class="sidebar-tag-name" data-tags="索引"><span class="iconfont-archer">&#xe606;</span>索引</span>
     
         <span class="sidebar-tag-name" data-tags="HTTPS"><span class="iconfont-archer">&#xe606;</span>HTTPS</span>
     
